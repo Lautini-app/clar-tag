@@ -1,0 +1,11 @@
+{
+  "name": "clar · zeit",
+  "short_name": "clar zeit",
+  "description": "Tagesstruktur, Routinen und Zeitgefühl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F2ED",
+  "theme_color": "#F5F2ED",
+  "lang": "de-CH",
+  "icons": []
+}
