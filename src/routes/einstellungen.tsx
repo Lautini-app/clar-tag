@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { KEYS, lsSet, STAGE_META, memberStage, type FamilyMember } from "@/lib/storage";
-import { useAuth, signOut } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
 import { MemberDialog } from "@/components/family/MemberDialog";
 import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
@@ -35,17 +35,10 @@ function Einstellungen() {
 
   if (!loaded) return null;
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate({ to: "/login" });
-  };
-
   return (
     <div className="px-5 pb-10 pt-10">
       <header className="mb-6">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">
-          Einstellungen
-        </div>
+        <div className="text-xs uppercase tracking-widest text-muted-foreground">Einstellungen</div>
         <h1 className="mt-1 text-2xl font-semibold text-foreground">Anpassen</h1>
       </header>
 
@@ -141,11 +134,8 @@ function Einstellungen() {
         onDelete={removeMember}
       />
 
-
       <Group title="App installieren">
-        <p className="text-sm text-muted-foreground">
-          Im Browser: Teilen → Zum Home-Bildschirm.
-        </p>
+        <p className="text-sm text-muted-foreground">Im Browser: Teilen → Zum Home-Bildschirm.</p>
       </Group>
 
       <button
@@ -168,12 +158,6 @@ function Einstellungen() {
       <div className="mt-8 rounded-[var(--radius-lg)] bg-card p-4">
         <div className="text-xs uppercase tracking-wide text-muted-foreground">Angemeldet als</div>
         <div className="mt-1 text-sm text-foreground">{user?.email ?? "—"}</div>
-        <button
-          onClick={handleLogout}
-          className="mt-3 w-full rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm text-foreground"
-        >
-          Abmelden
-        </button>
       </div>
 
       <div className="mt-6 rounded-[var(--radius-lg)] border border-destructive/30 bg-card p-4">
