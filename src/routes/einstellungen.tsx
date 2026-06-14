@@ -38,9 +38,7 @@ function Einstellungen() {
   return (
     <div className="px-5 pb-10 pt-10">
       <header className="mb-6">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">
-          Einstellungen
-        </div>
+        <div className="text-xs uppercase tracking-widest text-muted-foreground">Einstellungen</div>
         <h1 className="mt-1 text-2xl font-semibold text-foreground">Anpassen</h1>
       </header>
 
@@ -136,11 +134,8 @@ function Einstellungen() {
         onDelete={removeMember}
       />
 
-
       <Group title="App installieren">
-        <p className="text-sm text-muted-foreground">
-          Im Browser: Teilen → Zum Home-Bildschirm.
-        </p>
+        <p className="text-sm text-muted-foreground">Im Browser: Teilen → Zum Home-Bildschirm.</p>
       </Group>
 
       <button
