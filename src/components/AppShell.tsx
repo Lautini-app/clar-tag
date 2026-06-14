@@ -7,12 +7,58 @@ import { useFamily } from "@/hooks/use-family";
 
 const PUBLIC_ROUTES = new Set(["/login", "/onboarding", "/verbinden"]);
 
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+  userAgentData?: {
+    mobile?: boolean;
+  };
+};
+
+const DESKTOP_UA_PATTERN = /\b(Windows NT|Macintosh|X11|CrOS|Linux x86_64|Linux i686)\b/i;
+const DESKTOP_PLATFORM_PATTERN = /\b(Win32|Win64|MacIntel|MacPPC|Linux x86_64|Linux i686)\b/i;
+const MOBILE_UA_PATTERN = /\b(Android|iPhone|iPad|iPod|Mobile|Tablet|Silk)\b/i;
+
+function isLocalhostLocation(location: Location): boolean {
+  return (
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1" ||
+    location.hostname === "::1" ||
+    location.hostname.endsWith(".localhost")
+  );
+}
+
+function isDesktopBrowser(navigator: NavigatorWithStandalone): boolean {
+  const userAgent = navigator.userAgent ?? "";
+  const platform = navigator.platform ?? "";
+
+  if (navigator.userAgentData?.mobile === true) return false;
+  if (MOBILE_UA_PATTERN.test(userAgent)) return false;
+
+  // iPadOS can present itself as macOS Safari while still exposing touch points.
+  if (
+    (userAgent.includes("Macintosh") || platform === "MacIntel") &&
+    navigator.maxTouchPoints > 1
+  ) {
+    return false;
+  }
+
+  return DESKTOP_UA_PATTERN.test(userAgent) || DESKTOP_PLATFORM_PATTERN.test(platform);
+}
+
+export function shouldShowClarBackHeader(win: Window): boolean {
+  const navigator = win.navigator as NavigatorWithStandalone;
+
+  if (navigator.standalone === true) return true;
+
+  return !isLocalhostLocation(win.location) && !isDesktopBrowser(navigator);
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const navigate = useNavigate();
   const { session, loading } = useAuth();
   const { stage, role } = useFamily();
-  const [isDespia, setIsDespia] = useState(false);
+  const [showBackHeader, setShowBackHeader] = useState(false);
 
   const isPublic = PUBLIC_ROUTES.has(loc.pathname);
   // Stufe 1 "Begleitet" → vereinfachte Ansicht, keine Bottom-Nav
@@ -20,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const showNav = !isPublic && !simplified;
 
   useEffect(() => {
-    setIsDespia(navigator.userAgent.toLowerCase().includes("despia"));
+    setShowBackHeader(shouldShowClarBackHeader(window));
   }, []);
 
   useEffect(() => {
@@ -50,7 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       }`}
       data-stage={stage ?? "admin"}
     >
-      {isDespia && (
+      {showBackHeader && (
         <header
           className="bg-[#2E5C3E] text-white"
           style={{ paddingTop: "env(safe-area-inset-top)" }}
