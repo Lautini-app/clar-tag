@@ -95,9 +95,7 @@ function Login() {
     setResetLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(
       normalizedEmail,
-      typeof window === "undefined"
-        ? undefined
-        : { redirectTo: `${window.location.origin}/login` },
+      typeof window === "undefined" ? undefined : { redirectTo: `${window.location.origin}/login` },
     );
     setResetLoading(false);
 
@@ -106,7 +104,9 @@ function Login() {
       return;
     }
 
-    setNotice("Wenn ein Konto existiert, senden wir dir eine E-Mail zum Zurücksetzen des Passworts.");
+    setNotice(
+      "Wenn ein Konto existiert, senden wir dir eine E-Mail zum Zurücksetzen des Passworts.",
+    );
   };
 
   return (
