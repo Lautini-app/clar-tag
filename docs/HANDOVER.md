@@ -13,7 +13,7 @@ Stand: Juni 2026. Übergabe an Emergent.
 | Build | Vite 7, Cloudflare Vite Plugin (Worker SSR), Wrangler |
 | Backend | Supabase (Postgres + Auth + RLS) — projektintern "Lovable Cloud" genannt |
 | Server-Code | `createServerFn` aus `@tanstack/react-start` (RPC); Server-Routes nur unter `src/routes/api/` für rohe HTTP-Endpunkte (Webhooks etc.) |
-| Auth | Supabase E-Mail-OTP (Magic Link) + Supabase Anonymous Auth (für PIN-Pairing-Devices) |
+| Auth | Supabase E-Mail + Passwort + Supabase Anonymous Auth (für PIN-Pairing-Devices) |
 | Sprache | Deutsch (UI), TypeScript strict |
 
 ### Wichtige Pakete
@@ -45,7 +45,7 @@ src/
   routes/                 # File-based Routing (TanStack)
     __root.tsx            # Root-Layout, Auth-Listener, Embedded-Shell-Bridge
     index.tsx             # / Heute-Screen
-    login.tsx             # Magic-Link Login + Link auf /verbinden
+    login.tsx             # E-Mail/Passwort-Login + Passwort-Recovery + Link auf /verbinden
     verbinden.tsx         # PIN-Pairing für Kinder/Mitglieder (ssr: false)
     einstellungen.tsx     # Settings, Familie, Gefahrenzone
     onboarding.tsx
@@ -128,11 +128,12 @@ Policies decken: Admin = full CRUD auf Family + Members + Invites; Member = read
 
 ## 4. Auth-Flow
 
-### 4.1 Admin / Eltern — Magic Link
-1. `/login` → `supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: origin + '/', shouldCreateUser: true } })`
-2. User klickt Link in Mail → Redirect auf `/` → `onAuthStateChange('SIGNED_IN')` im `__root.tsx`.
-3. ServerFns mit `.middleware([requireSupabaseAuth])` lesen Bearer-Token (via `auth-attacher`, global in `src/start.ts` als `functionMiddleware` registriert).
-4. Geschützte Routen liegen nicht unter `_authenticated/` — Schutz erfolgt auf ServerFn-Ebene (`requireSupabaseAuth`) + Client-Redirect im `AppShell` wenn keine Session.
+### 4.1 Admin / Eltern — E-Mail + Passwort
+1. `/login` → `supabase.auth.signInWithPassword({ email, password })`
+2. Nach erfolgreicher Anmeldung navigiert die App auf `/`; `onAuthStateChange('SIGNED_IN')` hält die Session im Client aktuell.
+3. "Passwort vergessen?" startet `supabase.auth.resetPasswordForEmail(...)`; der Recovery-Redirect landet wieder auf `/login` und setzt das neue Passwort via `supabase.auth.updateUser({ password })`.
+4. ServerFns mit `.middleware([requireSupabaseAuth])` lesen Bearer-Token (via `auth-attacher`, global in `src/start.ts` als `functionMiddleware` registriert).
+5. Geschützte Routen liegen nicht unter `_authenticated/` — Schutz erfolgt auf ServerFn-Ebene (`requireSupabaseAuth`) + Client-Redirect im `AppShell` wenn keine Session.
 
 ### 4.2 Kinder-Gerät — Anonymous + PIN
 Siehe §5 (PIN-Pairing).

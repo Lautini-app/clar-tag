@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
@@ -7,28 +8,105 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const submit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hash.includes("type=recovery") ||
+        window.location.search.includes("type=recovery"))
+    ) {
+      setIsPasswordRecovery(true);
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsPasswordRecovery(true);
+        setError(null);
+        setNotice(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    setLoading(true);
+    setError(null);
+    setNotice(null);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+
+    setLoading(false);
+    if (error) {
+      setError("E-Mail oder Passwort ist nicht korrekt.");
+      return;
+    }
+
+    navigate({ to: "/" });
+  };
+
+  const updatePassword = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        shouldCreateUser: true,
-      },
-    });
+    setNotice(null);
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
     setLoading(false);
     if (error) {
       setError(error.message);
       return;
     }
-    setSent(true);
+
+    setNotice("Dein Passwort wurde aktualisiert. Du bist jetzt angemeldet.");
+    navigate({ to: "/" });
+  };
+
+  const requestPasswordReset = async (e: FormEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (resetLoading) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    setError(null);
+    setNotice(null);
+
+    if (!normalizedEmail) {
+      setError("Bitte gib zuerst deine E-Mail-Adresse ein.");
+      return;
+    }
+
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      normalizedEmail,
+      typeof window === "undefined"
+        ? undefined
+        : { redirectTo: `${window.location.origin}/login` },
+    );
+    setResetLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setNotice("Wenn ein Konto existiert, senden wir dir eine E-Mail zum Zurücksetzen des Passworts.");
   };
 
   return (
@@ -37,29 +115,50 @@ function Login() {
         <div className="text-xs uppercase tracking-widest text-muted-foreground">clar · zeit</div>
         <h1 className="mt-2 text-2xl font-semibold text-foreground">Anmelden</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Wir schicken dir einen Link per E-Mail. Kein Passwort nötig.
+          {isPasswordRecovery
+            ? "Lege ein neues Passwort für dein Konto fest."
+            : "Melde dich mit deiner E-Mail-Adresse und deinem Passwort an."}
         </p>
       </div>
 
-      {sent ? (
-        <div className="rounded-[var(--radius-md)] border border-border bg-card p-5">
-          <p className="text-sm text-foreground">
-            Link an <span className="font-medium">{email}</span> verschickt.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Öffne die E-Mail auf diesem Gerät und tippe den Link an, um dich anzumelden.
-          </p>
+      {isPasswordRecovery ? (
+        <form onSubmit={updatePassword} className="grid gap-4">
+          <label className="grid gap-1.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Neues Passwort
+            </span>
+            <span className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 pr-12 text-base outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-muted-foreground"
+                aria-label={showPassword ? "Passwort ausblenden" : "Passwort anzeigen"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </span>
+          </label>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {notice && <p className="text-sm text-muted-foreground">{notice}</p>}
+
           <button
-            type="button"
-            onClick={() => {
-              setSent(false);
-              setEmail("");
-            }}
-            className="mt-4 text-sm text-primary underline"
+            type="submit"
+            disabled={loading || newPassword.length < 6}
+            className="mt-2 rounded-[var(--radius-md)] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            Andere E-Mail verwenden
+            {loading ? "Einen Moment …" : "Passwort speichern"}
           </button>
-        </div>
+        </form>
       ) : (
         <form onSubmit={submit} className="grid gap-4">
           <label className="grid gap-1.5">
@@ -77,14 +176,50 @@ function Login() {
             />
           </label>
 
+          <label className="grid gap-1.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Passwort
+            </span>
+            <span className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 pr-12 text-base outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-muted-foreground"
+                aria-label={showPassword ? "Passwort ausblenden" : "Passwort anzeigen"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </span>
+          </label>
+
+          <div className="-mt-1 text-right">
+            <a
+              href="#passwort-vergessen"
+              onClick={requestPasswordReset}
+              className="text-sm text-primary underline-offset-4 hover:underline"
+              aria-disabled={resetLoading}
+            >
+              {resetLoading ? "Wird gesendet …" : "Passwort vergessen?"}
+            </a>
+          </div>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
+          {notice && <p className="text-sm text-muted-foreground">{notice}</p>}
 
           <button
             type="submit"
-            disabled={loading || !email}
+            disabled={loading || !email.trim() || !password}
             className="mt-2 rounded-[var(--radius-md)] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            {loading ? "Einen Moment …" : "Link schicken"}
+            {loading ? "Einen Moment …" : "Anmelden"}
           </button>
         </form>
       )}
