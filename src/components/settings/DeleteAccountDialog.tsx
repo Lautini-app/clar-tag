@@ -29,7 +29,7 @@ export function DeleteAccountDialog({
     try {
       await runDelete();
       await supabase.auth.signOut();
-      navigate({ to: "/login" });
+      navigate({ to: "/" });
     } catch (e) {
       console.error(e);
       setError(e instanceof Error ? e.message : "Löschen fehlgeschlagen");

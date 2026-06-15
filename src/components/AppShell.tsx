@@ -5,7 +5,7 @@ import { KEYS, lsGet, lsSet } from "@/lib/storage";
 import { useAuth } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
 
-const PUBLIC_ROUTES = new Set(["/login", "/onboarding", "/verbinden"]);
+const CHROMELESS_ROUTES = new Set(["/onboarding"]);
 
 type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
@@ -60,10 +60,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { stage, role } = useFamily();
   const [showBackHeader, setShowBackHeader] = useState(false);
 
-  const isPublic = PUBLIC_ROUTES.has(loc.pathname);
+  const isChromeless = CHROMELESS_ROUTES.has(loc.pathname);
   // Stufe 1 "Begleitet" → vereinfachte Ansicht, keine Bottom-Nav
   const simplified = stage === "begleitet";
-  const showNav = !isPublic && !simplified;
+  const showNav = !!session && !isChromeless && !simplified;
 
   useEffect(() => {
     setShowBackHeader(shouldShowClarBackHeader(window));
@@ -72,13 +72,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    if (!session && !isPublic) {
-      navigate({ to: "/login" });
-      return;
-    }
+    if (!session) return;
 
-    if (session && !isPublic) {
-      // Members (linked via PIN) skip onboarding — admin already set them up.
+    if (!isChromeless) {
+      // Members skip onboarding — admin already set them up.
       if (role === "member") {
         const done = lsGet<boolean>(KEYS.onboarding, false);
         if (!done) lsSet(KEYS.onboarding, true);
@@ -87,7 +84,23 @@ export function AppShell({ children }: { children: ReactNode }) {
       const done = lsGet<boolean>(KEYS.onboarding, false);
       if (!done) navigate({ to: "/onboarding" });
     }
-  }, [loc.pathname, navigate, session, loading, isPublic, role]);
+  }, [loc.pathname, navigate, session, loading, isChromeless, role]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto min-h-screen w-full max-w-[390px] bg-background" />
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="mx-auto grid min-h-screen w-full max-w-[390px] place-items-center bg-background px-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Bitte öffne die App über clar by lautini
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -165,29 +165,3 @@ export const renameFamily = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-
-export const createPinInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ memberId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row, error } = await supabase
-      .rpc("create_pin_invite", { _member_id: data.memberId })
-      .single<{ pin: string; expires_at: string }>();
-    if (error) throw new Error(error.message);
-    return { pin: row!.pin, expiresAt: row!.expires_at };
-  });
-
-export const claimPin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ pin: z.string().regex(/^\d{6}$/) }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row, error } = await supabase
-      .rpc("claim_pin", { _pin: data.pin })
-      .single<{ member_id: string; family_id: string; name: string }>();
-    if (error) throw new Error(error.message);
-    return { memberId: row!.member_id, familyId: row!.family_id, name: row!.name };
-  });

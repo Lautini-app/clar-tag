@@ -13,11 +13,11 @@ Stand: Juni 2026. Übergabe an Emergent.
 | Build | Vite 7, Cloudflare Vite Plugin (Worker SSR), Wrangler |
 | Backend | Supabase (Postgres + Auth + RLS) — projektintern "Lovable Cloud" genannt |
 | Server-Code | `createServerFn` aus `@tanstack/react-start` (RPC); Server-Routes nur unter `src/routes/api/` für rohe HTTP-Endpunkte (Webhooks etc.) |
-| Auth | Supabase E-Mail + Passwort + Supabase Anonymous Auth (für PIN-Pairing-Devices) |
+| Auth | Supabase-Session aus `access_token` + `refresh_token` von `home.lautini.ch` |
 | Sprache | Deutsch (UI), TypeScript strict |
 
 ### Wichtige Pakete
-`@supabase/supabase-js`, `@tanstack/react-router`, `@tanstack/react-start`, `@tanstack/react-query`, `qrcode.react`, `zod`, `lucide-react`, `class-variance-authority`.
+`@supabase/supabase-js`, `@tanstack/react-router`, `@tanstack/react-start`, `@tanstack/react-query`, `zod`, `lucide-react`, `class-variance-authority`.
 
 ### Lokal starten
 ```bash
@@ -45,20 +45,17 @@ src/
   routes/                 # File-based Routing (TanStack)
     __root.tsx            # Root-Layout, Auth-Listener, Embedded-Shell-Bridge
     index.tsx             # / Heute-Screen
-    login.tsx             # E-Mail/Passwort-Login + Passwort-Recovery + Link auf /verbinden
-    verbinden.tsx         # PIN-Pairing für Kinder/Mitglieder (ssr: false)
     einstellungen.tsx     # Settings, Familie, Gefahrenzone
     onboarding.tsx
     routinen*.tsx, run.$workflowId.tsx, statistiken.tsx, ruhe*.tsx, entscheiden*.tsx
   components/
     AppShell.tsx, BottomNav.tsx, CountdownCard.tsx, RingTimer.tsx, ...
-    family/MemberDialog.tsx           # PIN- & QR-Generation
+    family/MemberDialog.tsx           # Familienmitglieder bearbeiten
     settings/DeleteAccountDialog.tsx  # DSGVO-Delete-Dialog (Texteingabe "LÖSCHEN")
   hooks/
     use-auth.ts, use-family.ts, use-settings.ts, use-member-status.ts
   lib/
-    family.functions.ts          # ServerFns: getFamilyContext, upsert/remove Member,
-                                 #            createPinInvite, claimPin, renameFamily
+    family.functions.ts          # ServerFns: getFamilyContext, upsert/remove Member, renameFamily
     account.functions.ts         # ServerFn: deleteMyAccount (DSGVO)
     user-workflows.functions.ts  # ServerFns für Routinen
     schedules.functions.ts, completions.functions.ts
@@ -102,7 +99,7 @@ Alle App-Daten leben im Postgres-Schema **`clar_tag`** (Supabase Data API ist au
 |---|---|
 | `families` | 1 Eintrag pro Admin. `admin_user_id`, `name`. |
 | `family_members` | Mitglieder. `family_id`, `user_id` (nullable — leer = noch nicht verbunden; gefüllt = anonyme oder echte Auth-User-ID), `name`, `emoji`, `stage` (enum `begleitet`/`unterstuetzt`/`selbststaendig`), `toggles jsonb`. `UNIQUE(user_id)`. |
-| `family_invites` | PIN- oder Email-Einladungen. `member_id`, `kind` (`pin`/`email`), `pin_hash`, `expires_at`, `used_at`. |
+| `family_invites` | Legacy-Einladungen aus früherem Pairing-Flow. Wird von der App aktuell nicht verwendet. |
 | `family_member_status` | Live-Status (welcher Schritt läuft gerade) für Admin-Übersicht. |
 
 RLS-Helper (`SECURITY DEFINER`):
@@ -112,8 +109,7 @@ RLS-Helper (`SECURITY DEFINER`):
 Policies decken: Admin = full CRUD auf Family + Members + Invites; Member = read siblings + read/write own status.
 
 ### RPCs
-- `create_pin_invite(_member_id uuid) RETURNS (pin text, expires_at timestamptz)` — Admin-only. Erzeugt 6-stelligen Zufalls-PIN, speichert `pin_hash` in `family_invites`, 24 h gültig.
-- `claim_pin(_pin text) RETURNS (member_id, family_id, name)` — vom Kind-Gerät aufgerufen. Sucht ungenutzten, nicht-abgelaufenen Invite, setzt `family_members.user_id = auth.uid()`, markiert `used_at`.
+Die DB enthält noch Legacy-RPCs für den früheren PIN-Pairing-Flow; die App ruft sie nicht mehr auf.
 
 ### Migration-Reihenfolge
 ```
@@ -128,17 +124,14 @@ Policies decken: Admin = full CRUD auf Family + Members + Invites; Member = read
 
 ## 4. Auth-Flow
 
-### 4.1 Admin / Eltern — E-Mail + Passwort
-1. `/login` → `supabase.auth.signInWithPassword({ email, password })`
-2. Nach erfolgreicher Anmeldung navigiert die App auf `/`; `onAuthStateChange('SIGNED_IN')` hält die Session im Client aktuell.
-3. "Passwort vergessen?" startet `supabase.auth.resetPasswordForEmail(...)`; der Recovery-Redirect landet wieder auf `/login` und setzt das neue Passwort via `supabase.auth.updateUser({ password })`.
-4. ServerFns mit `.middleware([requireSupabaseAuth])` lesen Bearer-Token (via `auth-attacher`, global in `src/start.ts` als `functionMiddleware` registriert).
-5. Geschützte Routen liegen nicht unter `_authenticated/` — Schutz erfolgt auf ServerFn-Ebene (`requireSupabaseAuth`) + Client-Redirect im `AppShell` wenn keine Session.
+### 4.1 Token-Start über clar by lautini
+1. `home.lautini.ch` öffnet die App mit URL-Parametern `access_token` und `refresh_token`.
+2. `src/hooks/use-auth.ts` liest diese Parameter beim Boot, ruft `supabase.auth.setSession(...)` auf und entfernt die Token danach aus der Adresszeile.
+3. Ohne aktive Session zeigt `AppShell` ausschließlich: `Bitte öffne die App über clar by lautini`.
+4. Es gibt keine App-eigene Login-, Passwort-Reset- oder PIN-Verbindungsoberfläche.
+5. ServerFns mit `.middleware([requireSupabaseAuth])` lesen Bearer-Token (via `auth-attacher`, global in `src/start.ts` als `functionMiddleware` registriert).
 
-### 4.2 Kinder-Gerät — Anonymous + PIN
-Siehe §5 (PIN-Pairing).
-
-### 4.3 DSGVO-Löschung
+### 4.2 DSGVO-Löschung
 `einstellungen.tsx` → "Gefahrenzone" → `DeleteAccountDialog` (User tippt "LÖSCHEN") → ServerFn `deleteMyAccount` (`account.functions.ts`):
 
 1. Caller-Family laden (`admin_user_id = caller`)
@@ -177,7 +170,7 @@ Im Browser-Standalone-Modus ist der Bridge ein No-Op.
 ### App → Shell (outbound, via `ReactNativeWebView.postMessage` / `clarShell.postMessage` / `parent.postMessage`)
 | type | payload | Wann |
 |---|---|---|
-| `clar:ready` | — | Bridge installiert, auch nach erfolgreichem PIN-Claim |
+| `clar:ready` | — | Bridge installiert |
 | `clar:needs-session` | — | Boot, keine Supabase-Session vorhanden |
 | `clar:signed-in` | `{ userId }` | `onAuthStateChange('SIGNED_IN')` oder Boot mit Session |
 | `clar:signed-out` | — | `onAuthStateChange('SIGNED_OUT')` |
@@ -186,33 +179,13 @@ Symmetrisch zum bestehenden `clar.log`-Contract.
 
 ---
 
-## 6. PIN-Pairing-Flow
+## 6. Launch-Vertrag
 
-Ziel: Kinder/Mitglieder ohne eigenes E-Mail-Konto bekommen ein gepairtes Gerät, das via anonymem Auth-User auf die Familie zugreift.
-
-### 6.1 Admin erzeugt PIN
-1. `Einstellungen` → "Mitglied hinzufügen" → `MemberDialog` (`src/components/family/MemberDialog.tsx`)
-2. Mitglied speichern → automatisch in `ConnectView` → ServerFn `createPinInvite({ memberId })`
-3. RPC `clar_tag.create_pin_invite(member_id)` liefert 6-stelligen PIN + `expires_at` (24 h, 1× einlösbar).
-4. Anzeige: großer PIN + QR-Code (`qrcode.react`) mit URL `/verbinden?pin=NNNNNN`.
-
-### 6.2 Kind-Gerät löst PIN ein
-1. `/verbinden` (Route ist **`ssr: false`** + öffentlich, da anonyme Session lokal erzeugt wird).
-2. Falls keine Session: `supabase.auth.signInAnonymously()` (kurzes Settle-Delay damit Token am Client gesetzt ist).
-3. ServerFn `claimPin({ pin })` → RPC `clar_tag.claim_pin(_pin)` → setzt `family_members.user_id = auth.uid()`, markiert Invite als verbraucht.
-4. Client: `lsSet(KEYS.onboarding, true)` + `lsSet(KEYS.activeMember, memberId)` (dieses Gerät vertritt genau dieses Mitglied → kein Admin-Switcher).
-5. `queryClient.invalidateQueries(['family-context'])`
-6. `signalShellReady()` → Shell weiß: Pairing fertig.
-7. `navigate({ to: '/' })`
-
-### 6.3 Auto-Submit bei QR-Scan
-`/verbinden?pin=123456` → `useEffect` validiert + submitted automatisch. Kind muss nichts tippen.
-
-### 6.4 Regeln
-- 1 PIN = 1 Gerät = 1 Mitglied. Nach `claim_pin` ist der Invite verbraucht.
-- 24 h gültig (in RPC erzwungen).
-- Member sieht im UI nur sich selbst (forcierter `activeId = selfMemberId` in `use-family.ts`).
-- Anonyme User werden bei DSGVO-Delete des Admins mitgelöscht (siehe §4.3).
+- Die App wird von **clar by lautini** (`home.lautini.ch`) geöffnet.
+- Erwartete URL-Parameter: `access_token` und `refresh_token`.
+- Ohne Token/Session rendert die App nur den Hinweis `Bitte öffne die App über clar by lautini`.
+- Entfernte App-Oberflächen: `/login`, `/verbinden`, E-Mail/Passwort-Login, Passwort-Recovery, PIN-Eingabe, PIN-/QR-Erzeugung.
+- Member sieht im UI nur sich selbst (forcierter `activeId = selfMemberId` in `use-family.ts`), sobald die Session von clar by lautini die entsprechende Family-Zuordnung liefert.
 
 ---
 
@@ -228,15 +201,11 @@ Ziel: Kinder/Mitglieder ohne eigenes E-Mail-Konto bekommen ein gepairtes Gerät,
 
 ## 8. Offene Punkte / TODO
 
-1. **E-Mail-Invites** (`family_invites.kind = 'email'`) — Schema existiert, kein Flow implementiert.
-2. **PIN-Rotation / Sperren** — manuelles "Neu-Pairing" eines Geräts hätte UI-Hinweis verdient (aktuell: einfach neuen PIN erzeugen, alten verfallen lassen).
-3. **Realtime Member-Status** — `family_member_status` wird gelesen, aber kein Supabase-Realtime-Channel; Admin-Übersicht pollt via React Query.
-4. **i18n-Infrastruktur** — alle Strings sind hartkodiert deutsch. Bei späterer FR/EN-Lokalisierung Refactor nötig.
-5. **Onboarding für Member-Gerät** nach PIN-Claim: aktuell übersprungen (`KEYS.onboarding = true`). Eventuell kurzer Welcome-Screen sinnvoll.
-6. **Tests** — keine Unit-/E2E-Tests im Repo. Für Emergent empfohlen: Vitest + Playwright auf `claim_pin`-RPC und `deleteMyAccount`-ServerFn.
-7. **PWA / Offline** — `public/manifest.webmanifest` existiert, kein Service-Worker. Für stabile mobile Nutzung lohnt Vite-PWA-Plugin.
-8. **Apple/Google Social Login** — nicht aktiviert. Bei Bedarf via Lovable `lovable.auth.signInWithOAuth('google'|'apple')` und Provider-Konfiguration in Supabase Auth.
-9. **Rate-Limiting** auf `claim_pin` / `create_pin_invite` aktuell nicht enforced — Brute-Force auf 6-stelligen PINs wäre theoretisch möglich. Empfehlung: SQL-Counter pro IP/User mit Lockout.
+1. **Legacy-Invite-Schema** — `family_invites` und PIN-RPCs existieren noch in Migrationen/DB-Types, werden von der App aber nicht mehr genutzt.
+2. **Realtime Member-Status** — `family_member_status` wird gelesen, aber kein Supabase-Realtime-Channel; Admin-Übersicht pollt via React Query.
+3. **i18n-Infrastruktur** — alle Strings sind hartkodiert deutsch. Bei späterer FR/EN-Lokalisierung Refactor nötig.
+4. **Tests** — keine Unit-/E2E-Tests im Repo. Für Emergent empfohlen: Vitest + Playwright auf Token-Bootstrap und `deleteMyAccount`-ServerFn.
+5. **PWA / Offline** — `public/manifest.webmanifest` existiert, kein Service-Worker. Für stabile mobile Nutzung lohnt Vite-PWA-Plugin.
 
 ---
 

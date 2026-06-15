@@ -9,12 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerbindenRouteImport } from './routes/verbinden'
 import { Route as StatistikenRouteImport } from './routes/statistiken'
 import { Route as RuheRouteImport } from './routes/ruhe'
 import { Route as RoutinenRouteImport } from './routes/routinen'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntscheidenRouteImport } from './routes/entscheiden'
 import { Route as EinstellungenRouteImport } from './routes/einstellungen'
 import { Route as IndexRouteImport } from './routes/index'
@@ -25,11 +23,6 @@ import { Route as RoutinenWorkflowIdRouteImport } from './routes/routinen.$workf
 import { Route as EntscheidenHelperIdRouteImport } from './routes/entscheiden.$helperId'
 import { Route as RoutinenWorkflowIdBearbeitenRouteImport } from './routes/routinen.$workflowId.bearbeiten'
 
-const VerbindenRoute = VerbindenRouteImport.update({
-  id: '/verbinden',
-  path: '/verbinden',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StatistikenRoute = StatistikenRouteImport.update({
   id: '/statistiken',
   path: '/statistiken',
@@ -48,11 +41,6 @@ const RoutinenRoute = RoutinenRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EntscheidenRoute = EntscheidenRouteImport.update({
@@ -106,12 +94,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
-  '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
-  '/verbinden': typeof VerbindenRoute
   '/entscheiden/$helperId': typeof EntscheidenHelperIdRoute
   '/routinen/$workflowId': typeof RoutinenWorkflowIdRouteWithChildren
   '/routinen/neu': typeof RoutinenNeuRoute
@@ -123,12 +109,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
-  '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
-  '/verbinden': typeof VerbindenRoute
   '/entscheiden/$helperId': typeof EntscheidenHelperIdRoute
   '/routinen/$workflowId': typeof RoutinenWorkflowIdRouteWithChildren
   '/routinen/neu': typeof RoutinenNeuRoute
@@ -141,12 +125,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
-  '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
-  '/verbinden': typeof VerbindenRoute
   '/entscheiden/$helperId': typeof EntscheidenHelperIdRoute
   '/routinen/$workflowId': typeof RoutinenWorkflowIdRouteWithChildren
   '/routinen/neu': typeof RoutinenNeuRoute
@@ -160,12 +142,10 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
-    | '/login'
     | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
-    | '/verbinden'
     | '/entscheiden/$helperId'
     | '/routinen/$workflowId'
     | '/routinen/neu'
@@ -177,12 +157,10 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
-    | '/login'
     | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
-    | '/verbinden'
     | '/entscheiden/$helperId'
     | '/routinen/$workflowId'
     | '/routinen/neu'
@@ -194,12 +172,10 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
-    | '/login'
     | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
-    | '/verbinden'
     | '/entscheiden/$helperId'
     | '/routinen/$workflowId'
     | '/routinen/neu'
@@ -212,24 +188,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EinstellungenRoute: typeof EinstellungenRoute
   EntscheidenRoute: typeof EntscheidenRouteWithChildren
-  LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   RoutinenRoute: typeof RoutinenRouteWithChildren
   RuheRoute: typeof RuheRouteWithChildren
   StatistikenRoute: typeof StatistikenRoute
-  VerbindenRoute: typeof VerbindenRoute
   RunWorkflowIdRoute: typeof RunWorkflowIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verbinden': {
-      id: '/verbinden'
-      path: '/verbinden'
-      fullPath: '/verbinden'
-      preLoaderRoute: typeof VerbindenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/statistiken': {
       id: '/statistiken'
       path: '/statistiken'
@@ -256,13 +223,6 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entscheiden': {
@@ -382,12 +342,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EinstellungenRoute: EinstellungenRoute,
   EntscheidenRoute: EntscheidenRouteWithChildren,
-  LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   RoutinenRoute: RoutinenRouteWithChildren,
   RuheRoute: RuheRouteWithChildren,
   StatistikenRoute: StatistikenRoute,
-  VerbindenRoute: VerbindenRoute,
   RunWorkflowIdRoute: RunWorkflowIdRoute,
 }
 export const routeTree = rootRouteImport

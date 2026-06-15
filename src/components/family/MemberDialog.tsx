@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { QRCodeSVG } from "qrcode.react";
-import { RefreshCw, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +16,6 @@ import {
   type Stage,
 } from "@/lib/storage";
 import { STAGE_DEFAULTS } from "@/hooks/use-family";
-import { createPinInvite } from "@/lib/family.functions";
 
 const STAGES: Stage[] = ["begleitet", "unterstuetzt", "selbststaendig"];
 const TOGGLE_KEYS: (keyof MemberToggles)[] = [
@@ -42,8 +38,6 @@ type Props = {
   onDelete?: (id: string) => void | Promise<void>;
 };
 
-type View = "form" | "connect";
-
 export function MemberDialog({
   open,
   member,
@@ -52,32 +46,21 @@ export function MemberDialog({
   onSave,
   onDelete,
 }: Props) {
-  const [view, setView] = useState<View>("form");
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("🙂");
   const [stage, setStage] = useState<Stage>("selbststaendig");
   const [overrides, setOverrides] = useState<Partial<MemberToggles>>({});
   const [familyName, setFamilyName] = useState("Meine Familie");
   const [saving, setSaving] = useState(false);
-  const [pinData, setPinData] = useState<{ pin: string; expiresAt: string } | null>(null);
-  const [pinLoading, setPinLoading] = useState(false);
-  const [pinError, setPinError] = useState<string | null>(null);
-  const [savedMemberId, setSavedMemberId] = useState<string | null>(null);
-
-  const createPin = useServerFn(createPinInvite);
 
   useEffect(() => {
     if (!open) return;
-    setView("form");
     setName(member?.name ?? "");
     setEmoji(member?.emoji ?? "🙂");
     setStage(member ? memberStage(member) : "selbststaendig");
     setOverrides(member?.toggles ?? {});
     setFamilyName("Meine Familie");
     setSaving(false);
-    setPinData(null);
-    setPinError(null);
-    setSavedMemberId(member?.id ?? null);
   }, [open, member]);
 
   const effective: MemberToggles = effectiveToggles({
@@ -106,7 +89,7 @@ export function MemberDialog({
     if (!n || saving) return;
     setSaving(true);
     try {
-      const result = await onSave({
+      await onSave({
         id: member?.id ?? "",
         name: n,
         emoji: emoji || "🙂",
@@ -114,31 +97,12 @@ export function MemberDialog({
         toggles: Object.keys(overrides).length ? overrides : undefined,
         familyName: !familyExists && !member ? familyName.trim() || "Meine Familie" : undefined,
       });
-      const newId = result?.id ?? member?.id ?? null;
-      setSavedMemberId(newId);
-      // Always move to connect view so admin can immediately pair a device.
-      setView("connect");
-      if (newId) {
-        await loadPin(newId);
-      }
+      onClose();
     } catch (err) {
       console.error(err);
       setSaving(false);
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function loadPin(memberId: string) {
-    setPinLoading(true);
-    setPinError(null);
-    try {
-      const data = await createPin({ data: { memberId } });
-      setPinData(data);
-    } catch (err: any) {
-      setPinError(err?.message ?? "PIN konnte nicht erstellt werden.");
-    } finally {
-      setPinLoading(false);
     }
   }
 
@@ -150,43 +114,30 @@ export function MemberDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {view === "connect"
-              ? `${name || "Mitglied"} verbinden`
-              : member
-                ? "Mitglied bearbeiten"
-                : "Mitglied hinzufügen"}
+            {member ? "Mitglied bearbeiten" : "Mitglied hinzufügen"}
           </DialogTitle>
         </DialogHeader>
 
-        {view === "form" ? (
-          <FormView
-            showFamilyName={showFamilyName}
-            familyName={familyName}
-            setFamilyName={setFamilyName}
-            name={name}
-            setName={setName}
-            emoji={emoji}
-            setEmoji={setEmoji}
-            stage={stage}
-            setStage={(s) => {
-              setStage(s);
-              setOverrides({});
-            }}
-            overrides={overrides}
-            effective={effective}
-            toggle={toggle}
-          />
-        ) : (
-          <ConnectView
-            pinData={pinData}
-            pinLoading={pinLoading}
-            pinError={pinError}
-            onRegenerate={() => savedMemberId && loadPin(savedMemberId)}
-          />
-        )}
+        <FormView
+          showFamilyName={showFamilyName}
+          familyName={familyName}
+          setFamilyName={setFamilyName}
+          name={name}
+          setName={setName}
+          emoji={emoji}
+          setEmoji={setEmoji}
+          stage={stage}
+          setStage={(s) => {
+            setStage(s);
+            setOverrides({});
+          }}
+          overrides={overrides}
+          effective={effective}
+          toggle={toggle}
+        />
 
         <DialogFooter className="flex-row justify-between gap-2 pt-2 sm:justify-between">
-          {view === "form" && member && onDelete ? (
+          {member && onDelete ? (
             <button
               type="button"
               onClick={async () => {
@@ -201,54 +152,21 @@ export function MemberDialog({
             <span />
           )}
           <div className="flex gap-2">
-            {view === "connect" ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setView("form")}
-                  className="rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm text-foreground"
-                >
-                  Zurück
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="rounded-[var(--radius-md)] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-                >
-                  Fertig
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm text-foreground"
-                >
-                  Abbrechen
-                </button>
-                {member && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setView("connect");
-                      await loadPin(member.id);
-                    }}
-                    className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-2 text-sm text-foreground"
-                  >
-                    Verbinden
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={!name.trim() || saving}
-                  className="rounded-[var(--radius-md)] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-                >
-                  {saving ? "Speichert …" : "Speichern"}
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm text-foreground"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!name.trim() || saving}
+              className="rounded-[var(--radius-md)] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {saving ? "Speichert …" : "Speichern"}
+            </button>
           </div>
         </DialogFooter>
       </DialogContent>
@@ -391,74 +309,6 @@ function FormView(props: {
           })}
         </ul>
       </section>
-    </div>
-  );
-}
-
-function ConnectView({
-  pinData,
-  pinLoading,
-  pinError,
-  onRegenerate,
-}: {
-  pinData: { pin: string; expiresAt: string } | null;
-  pinLoading: boolean;
-  pinError: string | null;
-  onRegenerate: () => void;
-}) {
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "";
-  const url = pinData ? `${origin}/verbinden?pin=${pinData.pin}` : "";
-
-  return (
-    <div className="grid gap-4 pt-2">
-      <p className="text-sm text-muted-foreground">
-        Öffne clar · zeit auf dem Gerät der Person, tippe auf{" "}
-        <span className="font-medium text-foreground">„Mit PIN verbinden"</span> und
-        gib den PIN ein. Oder scanne den QR-Code.
-      </p>
-
-      {pinLoading && (
-        <div className="grid place-items-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      )}
-
-      {pinError && (
-        <div className="rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-          {pinError}
-        </div>
-      )}
-
-      {pinData && !pinLoading && (
-        <>
-          <div className="grid place-items-center rounded-[var(--radius-lg)] bg-card p-5">
-            <QRCodeSVG value={url} size={180} bgColor="transparent" />
-          </div>
-
-          <div className="rounded-[var(--radius-lg)] bg-primary-soft p-4 text-center">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              PIN
-            </div>
-            <div className="mt-1 font-mono text-3xl font-semibold tracking-[0.4em] text-primary-deep">
-              {pinData.pin}
-            </div>
-            <div className="mt-2 text-xs text-muted-foreground">
-              Gültig 24 Stunden · nur 1× einlösbar
-            </div>
-          </div>
-        </>
-      )}
-
-      <button
-        type="button"
-        onClick={onRegenerate}
-        disabled={pinLoading}
-        className="inline-flex items-center justify-center gap-2 self-center rounded-[var(--radius-md)] border border-border bg-card px-3 py-2 text-sm text-foreground disabled:opacity-50"
-      >
-        <RefreshCw className="h-3.5 w-3.5" />
-        Neuen PIN erzeugen
-      </button>
     </div>
   );
 }
