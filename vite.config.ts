@@ -6,6 +6,32 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+const supabaseUrl =
+  process.env.VITE_SUPABASE_URL ??
+  process.env.SUPABASE_URL ??
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  "";
+const supabasePublishableKey =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.SUPABASE_PUBLISHABLE_KEY ??
+  process.env.VITE_SUPABASE_ANON_KEY ??
+  process.env.SUPABASE_ANON_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+  "";
+const supabaseEnvDefine: Record<string, string> = {};
+
+if (supabaseUrl) {
+  supabaseEnvDefine["import.meta.env.VITE_SUPABASE_URL"] = JSON.stringify(supabaseUrl);
+}
+
+if (supabasePublishableKey) {
+  supabaseEnvDefine["import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY"] =
+    JSON.stringify(supabasePublishableKey);
+  supabaseEnvDefine["import.meta.env.VITE_SUPABASE_ANON_KEY"] =
+    JSON.stringify(supabasePublishableKey);
+}
+
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
@@ -17,5 +43,8 @@ export default defineConfig({
         outputPath: "/index",
       },
     },
+  },
+  vite: {
+    define: supabaseEnvDefine,
   },
 });
