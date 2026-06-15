@@ -38,14 +38,7 @@ type Props = {
   onDelete?: (id: string) => void | Promise<void>;
 };
 
-export function MemberDialog({
-  open,
-  member,
-  familyExists,
-  onClose,
-  onSave,
-  onDelete,
-}: Props) {
+export function MemberDialog({ open, member, familyExists, onClose, onSave, onDelete }: Props) {
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("🙂");
   const [stage, setStage] = useState<Stage>("selbststaendig");
@@ -113,9 +106,7 @@ export function MemberDialog({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {member ? "Mitglied bearbeiten" : "Mitglied hinzufügen"}
-          </DialogTitle>
+          <DialogTitle>{member ? "Mitglied bearbeiten" : "Mitglied hinzufügen"}</DialogTitle>
         </DialogHeader>
 
         <FormView

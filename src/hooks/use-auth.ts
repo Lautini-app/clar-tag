@@ -15,10 +15,8 @@ function readTokenParams(): { access_token: string; refresh_token: string } | nu
     ? new URLSearchParams(window.location.hash.slice(1))
     : new URLSearchParams();
 
-  const access_token =
-    searchParams.get("access_token") ?? hashParams.get("access_token") ?? "";
-  const refresh_token =
-    searchParams.get("refresh_token") ?? hashParams.get("refresh_token") ?? "";
+  const access_token = searchParams.get("access_token") ?? hashParams.get("access_token") ?? "";
+  const refresh_token = searchParams.get("refresh_token") ?? hashParams.get("refresh_token") ?? "";
 
   if (!access_token && !refresh_token) return null;
   if (!access_token || !refresh_token) {
@@ -91,7 +89,9 @@ export function useAuth() {
     let mounted = true;
 
     // Listener FIRST, then read existing session.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, s) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_evt, s) => {
       setSession(s);
       setUser(s?.user ?? null);
     });

@@ -6,20 +6,22 @@ Stand: Juni 2026. Übergabe an Emergent.
 
 ## 1. Stack
 
-| Layer | Technologie |
-|---|---|
-| Frontend | React 19, TanStack Start 1.x (SSR + File-Based Routing), TanStack Router, TanStack Query |
-| Styling | Tailwind CSS v4 (über `src/styles.css`, `@import` + `@theme`), shadcn/ui (Radix) |
-| Build | Vite 7, Cloudflare Vite Plugin (Worker SSR), Wrangler |
-| Backend | Supabase (Postgres + Auth + RLS) — projektintern "Lovable Cloud" genannt |
+| Layer       | Technologie                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend    | React 19, TanStack Start 1.x (SSR + File-Based Routing), TanStack Router, TanStack Query                                              |
+| Styling     | Tailwind CSS v4 (über `src/styles.css`, `@import` + `@theme`), shadcn/ui (Radix)                                                      |
+| Build       | Vite 7, Cloudflare Vite Plugin (Worker SSR), Wrangler                                                                                 |
+| Backend     | Supabase (Postgres + Auth + RLS) — projektintern "Lovable Cloud" genannt                                                              |
 | Server-Code | `createServerFn` aus `@tanstack/react-start` (RPC); Server-Routes nur unter `src/routes/api/` für rohe HTTP-Endpunkte (Webhooks etc.) |
-| Auth | Supabase-Session aus `access_token` + `refresh_token` von `home.lautini.ch` |
-| Sprache | Deutsch (UI), TypeScript strict |
+| Auth        | Supabase-Session aus `access_token` + `refresh_token` von `home.lautini.ch`                                                           |
+| Sprache     | Deutsch (UI), TypeScript strict                                                                                                       |
 
 ### Wichtige Pakete
+
 `@supabase/supabase-js`, `@tanstack/react-router`, `@tanstack/react-start`, `@tanstack/react-query`, `zod`, `lucide-react`, `class-variance-authority`.
 
 ### Lokal starten
+
 ```bash
 bun install
 bun run dev      # vite dev
@@ -27,6 +29,7 @@ bun run build    # production
 ```
 
 `.env`-Beispiel (NICHT im ZIP enthalten):
+
 ```
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_PUBLISHABLE_KEY=...
@@ -78,40 +81,47 @@ Alle App-Daten leben im Postgres-Schema **`clar_tag`** (Supabase Data API ist au
 ## 3. Datenbank-Schema
 
 ### `profiles`
+
 1:1 zu `auth.users`, automatisch via Trigger `on_auth_user_created` (Function `handle_new_user`) angelegt. Felder: `user_id`, `display_name`.
 
 ### `workflows` (Routinen)
+
 - `id`, `user_id` → auth.users (ON DELETE CASCADE)
 - `name`, `category`, `icon`, `steps jsonb`, `is_archived`
 - RLS: owner-only (alle CRUD nur für `auth.uid() = user_id`)
 
 ### `workflow_schedules` (geplante Läufe)
+
 - `user_id`, `workflow_id` (nullable, SET NULL), `workflow_key`, `scheduled_at`, `status ∈ {planned, done, skipped}`
 - RLS: owner-only
 
 ### `workflow_completions` (Verlauf)
+
 - `user_id`, `workflow_id`, `workflow_key`, `completed_at`
 - RLS: owner-only
 
 ### Familien-Subsystem
 
-| Tabelle | Zweck |
-|---|---|
-| `families` | 1 Eintrag pro Admin. `admin_user_id`, `name`. |
-| `family_members` | Mitglieder. `family_id`, `user_id` (nullable — leer = noch nicht verbunden; gefüllt = anonyme oder echte Auth-User-ID), `name`, `emoji`, `stage` (enum `begleitet`/`unterstuetzt`/`selbststaendig`), `toggles jsonb`. `UNIQUE(user_id)`. |
-| `family_invites` | Legacy-Einladungen aus früherem Pairing-Flow. Wird von der App aktuell nicht verwendet. |
-| `family_member_status` | Live-Status (welcher Schritt läuft gerade) für Admin-Übersicht. |
+| Tabelle                | Zweck                                                                                                                                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `families`             | 1 Eintrag pro Admin. `admin_user_id`, `name`.                                                                                                                                                                                            |
+| `family_members`       | Mitglieder. `family_id`, `user_id` (nullable — leer = noch nicht verbunden; gefüllt = anonyme oder echte Auth-User-ID), `name`, `emoji`, `stage` (enum `begleitet`/`unterstuetzt`/`selbststaendig`), `toggles jsonb`. `UNIQUE(user_id)`. |
+| `family_invites`       | Legacy-Einladungen aus früherem Pairing-Flow. Wird von der App aktuell nicht verwendet.                                                                                                                                                  |
+| `family_member_status` | Live-Status (welcher Schritt läuft gerade) für Admin-Übersicht.                                                                                                                                                                          |
 
 RLS-Helper (`SECURITY DEFINER`):
+
 - `is_family_admin(_family_id)` — true wenn `auth.uid()` der Family-Admin ist
 - `is_family_member(_family_id)` — true wenn `auth.uid()` als Member verlinkt ist
 
 Policies decken: Admin = full CRUD auf Family + Members + Invites; Member = read siblings + read/write own status.
 
 ### RPCs
+
 Die DB enthält noch Legacy-RPCs für den früheren PIN-Pairing-Flow; die App ruft sie nicht mehr auf.
 
 ### Migration-Reihenfolge
+
 ```
 20260520073730_*  profiles + workflows + schedules
 20260520073742_*  REVOKE auf interne Trigger-Funktionen
@@ -125,6 +135,7 @@ Die DB enthält noch Legacy-RPCs für den früheren PIN-Pairing-Flow; die App ru
 ## 4. Auth-Flow
 
 ### 4.1 Token-Start über clar by lautini
+
 1. `home.lautini.ch` öffnet die App mit URL-Parametern `access_token` und `refresh_token`.
 2. `src/hooks/use-auth.ts` liest diese Parameter beim Boot, ruft `supabase.auth.setSession(...)` auf und entfernt die Token danach aus der Adresszeile.
 3. Ohne aktive Session zeigt `AppShell` ausschließlich: `Bitte öffne die App über clar by lautini`.
@@ -132,6 +143,7 @@ Die DB enthält noch Legacy-RPCs für den früheren PIN-Pairing-Flow; die App ru
 5. ServerFns mit `.middleware([requireSupabaseAuth])` lesen Bearer-Token (via `auth-attacher`, global in `src/start.ts` als `functionMiddleware` registriert).
 
 ### 4.2 DSGVO-Löschung
+
 `einstellungen.tsx` → "Gefahrenzone" → `DeleteAccountDialog` (User tippt "LÖSCHEN") → ServerFn `deleteMyAccount` (`account.functions.ts`):
 
 1. Caller-Family laden (`admin_user_id = caller`)
@@ -150,6 +162,7 @@ Service-Role-Key dafür: **`CLAR_SERVICE_ROLE_KEY`** (separater Secret, NICHT `S
 Quelle: `src/lib/embedded-shell.ts`. Initialisiert in `src/routes/__root.tsx` via `initEmbeddedShellBridge(supabase)`.
 
 ### Detection (eines von)
+
 - URL-Query `?clar_embedded=1`
 - `window.ReactNativeWebView` (React-Native-WebView)
 - `window.clarShell` (Web-Shell injiziert das)
@@ -157,23 +170,26 @@ Quelle: `src/lib/embedded-shell.ts`. Initialisiert in `src/routes/__root.tsx` vi
 Im Browser-Standalone-Modus ist der Bridge ein No-Op.
 
 ### Envelope
+
 ```ts
 { type: string; payload?: unknown }   // type beginnt immer mit "clar:"
 ```
 
 ### Shell → App (inbound, via `window.message`)
-| type | payload | Verhalten |
-|---|---|---|
+
+| type           | payload                           | Verhalten                       |
+| -------------- | --------------------------------- | ------------------------------- |
 | `clar:session` | `{ access_token, refresh_token }` | `supabase.auth.setSession(...)` |
-| `clar:signout` | — | `supabase.auth.signOut()` |
+| `clar:signout` | —                                 | `supabase.auth.signOut()`       |
 
 ### App → Shell (outbound, via `ReactNativeWebView.postMessage` / `clarShell.postMessage` / `parent.postMessage`)
-| type | payload | Wann |
-|---|---|---|
-| `clar:ready` | — | Bridge installiert |
-| `clar:needs-session` | — | Boot, keine Supabase-Session vorhanden |
-| `clar:signed-in` | `{ userId }` | `onAuthStateChange('SIGNED_IN')` oder Boot mit Session |
-| `clar:signed-out` | — | `onAuthStateChange('SIGNED_OUT')` |
+
+| type                 | payload      | Wann                                                   |
+| -------------------- | ------------ | ------------------------------------------------------ |
+| `clar:ready`         | —            | Bridge installiert                                     |
+| `clar:needs-session` | —            | Boot, keine Supabase-Session vorhanden                 |
+| `clar:signed-in`     | `{ userId }` | `onAuthStateChange('SIGNED_IN')` oder Boot mit Session |
+| `clar:signed-out`    | —            | `onAuthStateChange('SIGNED_OUT')`                      |
 
 Symmetrisch zum bestehenden `clar.log`-Contract.
 

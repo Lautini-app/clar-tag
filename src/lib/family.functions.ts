@@ -153,9 +153,7 @@ export const removeFamilyMember = createServerFn({ method: "POST" })
 
 export const renameFamily = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ name: z.string().trim().min(1).max(40) }).parse(input),
-  )
+  .inputValidator((input) => z.object({ name: z.string().trim().min(1).max(40) }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

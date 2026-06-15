@@ -6,13 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CONFIRM_WORD = "LÖSCHEN";
 
-export function DeleteAccountDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,17 +49,13 @@ export function DeleteAccountDialog({
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm rounded-[var(--radius-lg)] bg-card p-5 shadow-xl"
       >
-        <h2 className="text-lg font-semibold text-foreground">
-          Alle meine Daten löschen?
-        </h2>
+        <h2 className="text-lg font-semibold text-foreground">Alle meine Daten löschen?</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Das entfernt unwiderruflich dein Konto, alle Workflows, deine
-          Familienmitglieder und alle damit verbundenen Daten. Diese Aktion
-          kann nicht rückgängig gemacht werden.
+          Das entfernt unwiderruflich dein Konto, alle Workflows, deine Familienmitglieder und alle
+          damit verbundenen Daten. Diese Aktion kann nicht rückgängig gemacht werden.
         </p>
         <p className="mt-3 text-sm text-foreground">
-          Tippe <span className="font-mono font-semibold">{CONFIRM_WORD}</span>{" "}
-          zur Bestätigung:
+          Tippe <span className="font-mono font-semibold">{CONFIRM_WORD}</span> zur Bestätigung:
         </p>
         <input
           autoFocus
@@ -75,9 +65,7 @@ export function DeleteAccountDialog({
           className="mt-2 w-full rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm font-mono outline-none focus:border-destructive"
           placeholder={CONFIRM_WORD}
         />
-        {error && (
-          <p className="mt-2 text-xs text-destructive">{error}</p>
-        )}
+        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         <div className="mt-5 flex gap-2">
           <button
             onClick={handleClose}

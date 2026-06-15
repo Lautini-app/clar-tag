@@ -87,17 +87,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [loc.pathname, navigate, session, loading, isChromeless, role]);
 
   if (loading) {
-    return (
-      <div className="mx-auto min-h-screen w-full max-w-[390px] bg-background" />
-    );
+    return <div className="mx-auto min-h-screen w-full max-w-[390px] bg-background" />;
   }
 
   if (!session) {
     return (
       <div className="mx-auto grid min-h-screen w-full max-w-[390px] place-items-center bg-background px-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Bitte öffne die App über clar by lautini
-        </p>
+        <p className="text-sm text-muted-foreground">Bitte öffne die App über clar by lautini</p>
       </div>
     );
   }
