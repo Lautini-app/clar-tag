@@ -100,11 +100,11 @@ function Today() {
         <NextRoutineCard next={next} onStart={() =>
           navigate({ to: "/run/$workflowId", params: { workflowId: next.ref } })
         } />
-      ) : (
+      ) : views.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] bg-card p-5 text-sm text-muted-foreground">
           Heute ist nichts geplant. Starte eine Routine, wenn du magst.
         </div>
-      )}
+      ) : null}
 
       {views.length > 0 && (
         <section className="mt-8">
