@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Pause, Pencil, Play } from "lucide-react";
+import { Pause, Pencil, Play, X } from "lucide-react";
 import { sfx } from "@/lib/audio";
+
+const DURATION_PRESETS = [1, 2, 5, 10, 15, 30];
 
 type Props = {
   minutes: number;
@@ -51,10 +53,13 @@ export function RingTimer({ minutes, audioOn, style, onChangeMinutes }: Props) {
   const mm = Math.floor(left / 60);
   const ss = (left % 60).toString().padStart(2, "0");
 
-  const onEdit = () => {
-    const v = prompt("Dauer in Minuten:", String(minutes));
-    const n = Number(v);
+  const [editing, setEditing] = useState(false);
+  const [customVal, setCustomVal] = useState("");
+
+  const applyDuration = (n: number) => {
     if (Number.isFinite(n) && n > 0) onChangeMinutes(Math.min(120, Math.round(n)));
+    setEditing(false);
+    setCustomVal("");
   };
 
   const toggleRun = () => setRunning((r) => !r);
@@ -65,41 +70,44 @@ export function RingTimer({ minutes, audioOn, style, onChangeMinutes }: Props) {
     const c = 2 * Math.PI * r;
     const offset = c * (1 - pct);
     return (
-      <div className="flex w-full items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={toggleRun}
-          className="relative grid h-20 w-20 place-items-center"
-          aria-label={running ? "Pause" : "Start"}
-        >
-          <svg className="absolute inset-0" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r={r} fill="none" stroke="var(--color-secondary)" strokeWidth="6" />
-            <circle
-              cx="32"
-              cy="32"
-              r={r}
-              fill="none"
-              stroke={color}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={c}
-              strokeDashoffset={offset}
-              transform="rotate(-90 32 32)"
-              style={{ transition: "stroke-dashoffset 0.5s linear, stroke 0.3s" }}
-            />
-          </svg>
-          <div className="relative flex flex-col items-center leading-none">
-            <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
-              {mm}:{ss}
-            </span>
-            {running ? (
-              <Pause className="mt-0.5 h-3 w-3 text-muted-foreground" />
-            ) : (
-              <Play className="mt-0.5 h-3 w-3 text-muted-foreground" />
-            )}
-          </div>
-        </button>
-        <EditButton onEdit={onEdit} />
+      <div className="w-full">
+        <div className="flex w-full items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={toggleRun}
+            className="relative grid h-20 w-20 place-items-center"
+            aria-label={running ? "Pause" : "Start"}
+          >
+            <svg className="absolute inset-0" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r={r} fill="none" stroke="var(--color-secondary)" strokeWidth="6" />
+              <circle
+                cx="32"
+                cy="32"
+                r={r}
+                fill="none"
+                stroke={color}
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray={c}
+                strokeDashoffset={offset}
+                transform="rotate(-90 32 32)"
+                style={{ transition: "stroke-dashoffset 0.5s linear, stroke 0.3s" }}
+              />
+            </svg>
+            <div className="relative flex flex-col items-center leading-none">
+              <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+                {mm}:{ss}
+              </span>
+              {running ? (
+                <Pause className="mt-0.5 h-3 w-3 text-muted-foreground" />
+              ) : (
+                <Play className="mt-0.5 h-3 w-3 text-muted-foreground" />
+              )}
+            </div>
+          </button>
+          <EditButton onEdit={() => setEditing((e) => !e)} />
+        </div>
+        {editing && <DurationPicker current={minutes} customVal={customVal} setCustomVal={setCustomVal} onPick={applyDuration} onClose={() => setEditing(false)} />}
       </div>
     );
   }
@@ -126,8 +134,9 @@ export function RingTimer({ minutes, audioOn, style, onChangeMinutes }: Props) {
             <Play className="h-5 w-5 text-muted-foreground" />
           )}
         </button>
-        <EditButton onEdit={onEdit} />
+        <EditButton onEdit={() => setEditing((e) => !e)} />
       </div>
+      {editing && <DurationPicker current={minutes} customVal={customVal} setCustomVal={setCustomVal} onPick={applyDuration} onClose={() => setEditing(false)} />}
 
       {style === "bar" ? (
         <button
@@ -171,5 +180,73 @@ function EditButton({ onEdit }: { onEdit: () => void }) {
     >
       <Pencil className="h-3.5 w-3.5" />
     </button>
+  );
+}
+
+function DurationPicker({
+  current,
+  customVal,
+  setCustomVal,
+  onPick,
+  onClose,
+}: {
+  current: number;
+  customVal: string;
+  setCustomVal: (v: string) => void;
+  onPick: (n: number) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="mt-2 rounded-[var(--radius-md)] border border-border bg-card p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Dauer anpassen
+        </span>
+        <button type="button" onClick={onClose} className="text-muted-foreground" aria-label="Schliessen">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {DURATION_PRESETS.map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => onPick(m)}
+            className={`rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm transition ${
+              m === current
+                ? "border-primary bg-primary-soft text-primary-deep"
+                : "border-border bg-background text-foreground hover:border-primary"
+            }`}
+          >
+            {m} min
+          </button>
+        ))}
+      </div>
+      <form
+        className="mt-2 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const n = Number(customVal);
+          if (n > 0) onPick(n);
+        }}
+      >
+        <input
+          type="number"
+          min={1}
+          max={120}
+          placeholder="Andere"
+          value={customVal}
+          onChange={(e) => setCustomVal(e.target.value)}
+          className="w-20 rounded-[var(--radius-sm)] border border-border bg-background px-2 py-1.5 text-sm tabular-nums outline-none focus:border-primary"
+        />
+        <button
+          type="submit"
+          disabled={!customVal || Number(customVal) <= 0}
+          className="rounded-[var(--radius-sm)] bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          OK
+        </button>
+      </form>
+    </div>
   );
 }

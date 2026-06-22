@@ -101,26 +101,26 @@
 }
 
 /* Stufe 1 — Begleitet: vereinfachte, vergrösserte Darstellung */
-.clarzeit-simplified {
+.clartag-simplified {
   font-size: 24px;
   line-height: 1.35;
 }
-.clarzeit-simplified .text-xs,
-.clarzeit-simplified .text-sm,
-.clarzeit-simplified .text-base {
+.clartag-simplified .text-xs,
+.clartag-simplified .text-sm,
+.clartag-simplified .text-base {
   font-size: 18px;
 }
-.clarzeit-simplified h1 {
+.clartag-simplified h1 {
   font-size: 32px;
 }
-.clarzeit-simplified h2 {
+.clartag-simplified h2 {
   font-size: 24px;
 }
-.clarzeit-simplified .clarzeit-big-emoji {
+.clartag-simplified .clartag-big-emoji {
   font-size: 52px;
   line-height: 1;
 }
-.clarzeit-simplified .clarzeit-big-button {
+.clartag-simplified .clartag-big-button {
   padding: 18px;
   font-size: 20px;
   border-radius: var(--radius-lg);

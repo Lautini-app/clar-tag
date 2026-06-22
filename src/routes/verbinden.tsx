@@ -53,8 +53,6 @@ function Verbinden() {
 
       const result = await claim({ data: { pin: value } });
 
-      // Mark onboarding as done so AppShell doesn't redirect.
-      lsSet(KEYS.onboarding, true);
       // This device represents this member — no admin switcher.
       lsSet(KEYS.activeMember, result.memberId);
 
@@ -83,7 +81,7 @@ function Verbinden() {
 
       <div className="mb-8">
         <div className="text-xs uppercase tracking-widest text-muted-foreground">
-          clar · zeit
+          clar · tag
         </div>
         <h1 className="mt-2 text-2xl font-semibold text-foreground">
           Mit PIN verbinden

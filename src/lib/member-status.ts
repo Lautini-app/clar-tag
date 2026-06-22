@@ -3,7 +3,7 @@
 
 import { lsGet, lsSet } from "./storage";
 
-const KEY = "clarzeit.memberStatus";
+const KEY = "clartag.memberStatus";
 
 export type MemberStatus = {
   workflowRef: string;
@@ -45,7 +45,7 @@ function write(data: StatusMap) {
   cachedSerialized = JSON.stringify(data);
   cachedSnapshot = data;
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("clarzeit:member-status"));
+    window.dispatchEvent(new Event("clartag:member-status"));
   }
 }
 
@@ -90,10 +90,10 @@ export function clearStatus(memberId: string) {
 export function subscribeStatus(cb: () => void) {
   if (typeof window === "undefined") return () => {};
   const handler = () => cb();
-  window.addEventListener("clarzeit:member-status", handler);
+  window.addEventListener("clartag:member-status", handler);
   window.addEventListener("storage", handler);
   return () => {
-    window.removeEventListener("clarzeit:member-status", handler);
+    window.removeEventListener("clartag:member-status", handler);
     window.removeEventListener("storage", handler);
   };
 }

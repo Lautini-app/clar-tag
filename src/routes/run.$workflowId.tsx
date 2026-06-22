@@ -240,9 +240,19 @@ function Runner() {
         </div>
       )}
 
+      <div className="mt-4 flex items-center gap-3">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300"
+            style={{ width: `${((idx + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+        <span className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+          {idx + 1} von {steps.length}
+        </span>
+      </div>
 
-
-      <div className="mt-12 flex flex-1 flex-col items-center justify-center text-center">
+      <div className="mt-10 flex flex-1 flex-col items-center justify-center text-center">
         <div className="text-7xl">{step.emoji}</div>
         <h1 className="mt-6 text-3xl font-semibold leading-tight text-foreground">
           {step.text}
@@ -250,9 +260,6 @@ function Runner() {
         {step.hint && (
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">{step.hint}</p>
         )}
-        <div className="mt-4 text-xs text-muted-foreground">
-          Schritt {idx + 1} von {steps.length}
-        </div>
       </div>
 
       <div className="mt-4 flex justify-center gap-1.5">
@@ -271,20 +278,37 @@ function Runner() {
       </div>
 
       <div className="mt-6 flex flex-col gap-2">
-        <button
-          onClick={completeStep}
-          disabled={isPaused}
-          className="rounded-[var(--radius-md)] bg-primary px-4 py-4 text-base font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {isPaused ? "Kurze Pause läuft …" : "Erledigt"}
-        </button>
-        <button
-          onClick={briefPause}
-          disabled={isPaused}
-          className="rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 text-sm text-foreground disabled:opacity-50"
-        >
-          Kurze Pause · 2 min
-        </button>
+        {isPaused ? (
+          <>
+            <button
+              disabled
+              className="rounded-[var(--radius-md)] bg-primary px-4 py-4 text-base font-medium text-primary-foreground opacity-50"
+            >
+              Kurze Pause läuft …
+            </button>
+            <button
+              onClick={() => setPauseUntil(0)}
+              className="rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 text-sm font-medium text-foreground"
+            >
+              Weiter
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={completeStep}
+              className="rounded-[var(--radius-md)] bg-primary px-4 py-4 text-base font-medium text-primary-foreground"
+            >
+              Erledigt
+            </button>
+            <button
+              onClick={briefPause}
+              className="rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 text-sm text-foreground"
+            >
+              Kurze Pause · 2 min
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

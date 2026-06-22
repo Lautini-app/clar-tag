@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
@@ -10,6 +10,12 @@ import {
 } from "@/lib/user-workflows.functions";
 import { categoryMeta } from "@/lib/workflows";
 import { stepLibrary, stepGroupLabels, type StepCategory } from "@/lib/step-library";
+
+const ROUTINE_EMOJIS = [
+  "🪥", "🚿", "🍳", "☕️", "📚", "🎒", "🏃‍♂️", "😴",
+  "🧘", "🧹", "🍎", "💊", "🎯", "📝", "🎵", "🧠",
+  "🌅", "🌙", "👕", "🧴", "🪣", "🍽️", "🚗", "✅",
+];
 
 type EditorInitial = {
   id?: string;
@@ -51,6 +57,7 @@ export function WorkflowEditor({
   const [state, setState] = useState<EditorInitial>(initial ?? DEFAULTS);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [libGroup, setLibGroup] = useState<StepCategory>("morgen");
 
   const save = useServerFn(saveUserWorkflow);
@@ -95,7 +102,10 @@ export function WorkflowEditor({
 
   const onDelete = async () => {
     if (!state.id) return;
-    if (!confirm("Diese Routine wirklich löschen?")) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     setSaving(true);
     try {
       await remove({ data: { id: state.id } });
@@ -189,12 +199,9 @@ export function WorkflowEditor({
               className="rounded-[var(--radius-lg)] border border-border bg-card p-3"
             >
               <div className="flex items-start gap-2">
-                <input
-                  type="text"
+                <EmojiButton
                   value={step.emoji}
-                  onChange={(e) => updateStep(i, { emoji: e.target.value })}
-                  maxLength={4}
-                  className="w-12 rounded-[var(--radius-sm)] border border-border bg-background px-2 py-2 text-center text-xl outline-none focus:border-primary"
+                  onChange={(v) => updateStep(i, { emoji: v })}
                 />
                 <input
                   type="text"
@@ -302,16 +309,78 @@ export function WorkflowEditor({
           {saving ? "Speichert …" : "Speichern"}
         </button>
         {state.id && (
-          <button
-            type="button"
-            onClick={onDelete}
-            disabled={saving}
-            className="rounded-[var(--radius-md)] border border-destructive/30 bg-card px-4 py-3 text-sm text-destructive"
-          >
-            Routine löschen
-          </button>
+          confirmDelete ? (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={saving}
+                className="flex-1 rounded-[var(--radius-md)] bg-destructive px-4 py-3 text-sm font-medium text-white"
+              >
+                Wirklich löschen
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 text-sm text-foreground"
+              >
+                Abbrechen
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={saving}
+              className="rounded-[var(--radius-md)] border border-destructive/30 bg-card px-4 py-3 text-sm text-destructive"
+            >
+              Routine löschen
+            </button>
+          )
         )}
       </div>
     </form>
+  );
+}
+
+function EmojiButton({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-12 rounded-[var(--radius-sm)] border border-border bg-background px-2 py-2 text-center text-xl outline-none hover:border-primary"
+      >
+        {value || "✅"}
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 grid w-[13rem] grid-cols-6 gap-1 rounded-[var(--radius-md)] border border-border bg-card p-2 shadow-lg">
+          {ROUTINE_EMOJIS.map((e) => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => { onChange(e); setOpen(false); }}
+              className={`rounded-[var(--radius-sm)] p-1.5 text-lg hover:bg-secondary ${
+                e === value ? "bg-primary-soft ring-1 ring-primary" : ""
+              }`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

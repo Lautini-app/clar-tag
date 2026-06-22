@@ -21,12 +21,11 @@ export function lsSet<T>(key: string, value: T) {
 }
 
 export const KEYS = {
-  onboarding: "clarzeit.onboarded",
-  settings: "clarzeit.settings",
-  progress: "clarzeit.progress",
-  decisions: "clarzeit.decisions",
-  family: "clarzeit.family",
-  activeMember: "clarzeit.activeMember",
+  settings: "clartag.settings",
+  progress: "clartag.progress",
+  decisions: "clartag.decisions",
+  family: "clartag.family",
+  activeMember: "clartag.activeMember",
 } as const;
 
 export type Settings = {

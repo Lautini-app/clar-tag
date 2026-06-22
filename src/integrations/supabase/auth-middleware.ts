@@ -47,6 +47,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       SUPABASE_URL!,
       SUPABASE_PUBLISHABLE_KEY!,
       {
+        db: { schema: 'clar_tag' },
         global: {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, CopyPlus, Pencil, Play } from "lucide-react";
+import { ArrowLeft, Pencil, Play } from "lucide-react";
 import { type Grade } from "@/lib/workflows";
 import { useResolvedWorkflow } from "@/lib/workflow-resolver";
 import { Button } from "@/components/ui/button";
@@ -111,21 +111,6 @@ function Detail() {
       </section>
 
       <div className="grid gap-2">
-        {!isUser && (
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate({
-                to: "/routinen/neu",
-                search: { basis: w.id, grad: grade },
-              })
-            }
-            className="h-11"
-          >
-            <CopyPlus className="h-4 w-4" />
-            Als eigene Routine speichern
-          </Button>
-        )}
         <Button
           size="lg"
           onClick={() =>
@@ -139,29 +124,24 @@ function Detail() {
           <Play className="h-4 w-4" />
           Starten
         </Button>
-        {isUser ? (
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate({
-                to: "/routinen/$workflowId/bearbeiten",
-                params: { workflowId: w.id },
-              })
-            }
-            className="h-11"
-          >
-            <Pencil className="h-4 w-4" />
-            Bearbeiten
-          </Button>
-        ) : (
-          <Button variant="outline" disabled className="h-11">
-            <Pencil className="h-4 w-4" />
-            Bearbeiten
-            <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
-              Vorlage
-            </span>
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          onClick={() =>
+            isUser
+              ? navigate({
+                  to: "/routinen/$workflowId/bearbeiten",
+                  params: { workflowId: w.id },
+                })
+              : navigate({
+                  to: "/routinen/neu",
+                  search: { basis: w.id, grad: grade },
+                })
+          }
+          className="h-11"
+        >
+          <Pencil className="h-4 w-4" />
+          {isUser ? "Bearbeiten" : "Anpassen"}
+        </Button>
         <SchedulePlanner workflowRef={w.id} workflowName={w.name} />
       </div>
     </div>

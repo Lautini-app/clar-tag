@@ -20,6 +20,7 @@ function createSupabaseAdminClient() {
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    db: { schema: 'clar_tag' },
     auth: {
       storage: undefined,
       persistSession: false,

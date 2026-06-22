@@ -13,7 +13,6 @@ import { Route as VerbindenRouteImport } from './routes/verbinden'
 import { Route as StatistikenRouteImport } from './routes/statistiken'
 import { Route as RuheRouteImport } from './routes/ruhe'
 import { Route as RoutinenRouteImport } from './routes/routinen'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntscheidenRouteImport } from './routes/entscheiden'
 import { Route as EinstellungenRouteImport } from './routes/einstellungen'
@@ -43,11 +42,6 @@ const RuheRoute = RuheRouteImport.update({
 const RoutinenRoute = RoutinenRouteImport.update({
   id: '/routinen',
   path: '/routinen',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -107,7 +101,6 @@ export interface FileRoutesByFullPath {
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
@@ -124,7 +117,6 @@ export interface FileRoutesByTo {
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
@@ -142,7 +134,6 @@ export interface FileRoutesById {
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
   '/statistiken': typeof StatistikenRoute
@@ -161,7 +152,6 @@ export interface FileRouteTypes {
     | '/einstellungen'
     | '/entscheiden'
     | '/login'
-    | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
@@ -178,7 +168,6 @@ export interface FileRouteTypes {
     | '/einstellungen'
     | '/entscheiden'
     | '/login'
-    | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
@@ -195,7 +184,6 @@ export interface FileRouteTypes {
     | '/einstellungen'
     | '/entscheiden'
     | '/login'
-    | '/onboarding'
     | '/routinen'
     | '/ruhe'
     | '/statistiken'
@@ -213,7 +201,6 @@ export interface RootRouteChildren {
   EinstellungenRoute: typeof EinstellungenRoute
   EntscheidenRoute: typeof EntscheidenRouteWithChildren
   LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
   RoutinenRoute: typeof RoutinenRouteWithChildren
   RuheRoute: typeof RuheRouteWithChildren
   StatistikenRoute: typeof StatistikenRoute
@@ -249,13 +236,6 @@ declare module '@tanstack/react-router' {
       path: '/routinen'
       fullPath: '/routinen'
       preLoaderRoute: typeof RoutinenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -383,7 +363,6 @@ const rootRouteChildren: RootRouteChildren = {
   EinstellungenRoute: EinstellungenRoute,
   EntscheidenRoute: EntscheidenRouteWithChildren,
   LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
   RoutinenRoute: RoutinenRouteWithChildren,
   RuheRoute: RuheRouteWithChildren,
   StatistikenRoute: StatistikenRoute,
@@ -393,3 +372,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -59,6 +59,7 @@ export function MemberDialog({
   const [overrides, setOverrides] = useState<Partial<MemberToggles>>({});
   const [familyName, setFamilyName] = useState("Meine Familie");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [pinData, setPinData] = useState<{ pin: string; expiresAt: string } | null>(null);
   const [pinLoading, setPinLoading] = useState(false);
   const [pinError, setPinError] = useState<string | null>(null);
@@ -75,6 +76,7 @@ export function MemberDialog({
     setOverrides(member?.toggles ?? {});
     setFamilyName("Meine Familie");
     setSaving(false);
+    setSaveError(null);
     setPinData(null);
     setPinError(null);
     setSavedMemberId(member?.id ?? null);
@@ -105,6 +107,7 @@ export function MemberDialog({
     const n = name.trim();
     if (!n || saving) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const result = await onSave({
         id: member?.id ?? "",
@@ -114,16 +117,20 @@ export function MemberDialog({
         toggles: Object.keys(overrides).length ? overrides : undefined,
         familyName: !familyExists && !member ? familyName.trim() || "Meine Familie" : undefined,
       });
-      const newId = result?.id ?? member?.id ?? null;
+
+      if (member) {
+        onClose();
+        return;
+      }
+
+      const newId = result?.id ?? null;
       setSavedMemberId(newId);
-      // Always move to connect view so admin can immediately pair a device.
       setView("connect");
       if (newId) {
         await loadPin(newId);
       }
-    } catch (err) {
-      console.error(err);
-      setSaving(false);
+    } catch (err: any) {
+      setSaveError(err?.message ?? "Speichern fehlgeschlagen.");
     } finally {
       setSaving(false);
     }
@@ -157,6 +164,12 @@ export function MemberDialog({
                 : "Mitglied hinzufügen"}
           </DialogTitle>
         </DialogHeader>
+
+        {saveError && view === "form" && (
+          <div className="rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            {saveError}
+          </div>
+        )}
 
         {view === "form" ? (
           <FormView
@@ -413,7 +426,7 @@ function ConnectView({
   return (
     <div className="grid gap-4 pt-2">
       <p className="text-sm text-muted-foreground">
-        Öffne clar · zeit auf dem Gerät der Person, tippe auf{" "}
+        Öffne clar · tag auf dem Gerät der Person, tippe auf{" "}
         <span className="font-medium text-foreground">„Mit PIN verbinden"</span> und
         gib den PIN ein. Oder scanne den QR-Code.
       </p>

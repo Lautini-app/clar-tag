@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
-import { KEYS, lsSet, STAGE_META, memberStage, type FamilyMember } from "@/lib/storage";
+import { STAGE_META, memberStage, type FamilyMember } from "@/lib/storage";
 import { useAuth, signOut } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
 import { MemberDialog } from "@/components/family/MemberDialog";
@@ -149,16 +149,6 @@ function Einstellungen() {
       </Group>
 
       <button
-        onClick={() => {
-          lsSet(KEYS.onboarding, false);
-          navigate({ to: "/onboarding" });
-        }}
-        className="mt-4 w-full rounded-[var(--radius-md)] border border-border bg-card px-3 py-3 text-sm text-muted-foreground"
-      >
-        Onboarding erneut anzeigen
-      </button>
-
-      <button
         onClick={() => navigate({ to: "/statistiken" })}
         className="mt-2 w-full rounded-[var(--radius-md)] border border-border bg-card px-3 py-3 text-left text-sm text-muted-foreground"
       >
@@ -192,7 +182,7 @@ function Einstellungen() {
       <DeleteAccountDialog open={deleteOpen} onClose={() => setDeleteOpen(false)} />
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        clar · zeit — Teil der clar App-Familie von Lautini
+        clar · tag — Teil der clar App-Familie von Lautini
       </p>
     </div>
   );

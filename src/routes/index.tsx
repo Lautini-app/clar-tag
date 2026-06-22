@@ -56,7 +56,7 @@ function Today() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10 text-center">
         <div>
-          <div className="clarzeit-big-emoji">{activeMember?.emoji ?? "🌅"}</div>
+          <div className="clartag-big-emoji">{activeMember?.emoji ?? "🌅"}</div>
           <h1 className="mt-4 text-2xl font-semibold text-foreground">
             Hallo {personName}.
           </h1>
@@ -66,7 +66,7 @@ function Today() {
             onClick={() =>
               navigate({ to: "/run/$workflowId", params: { workflowId: next.ref } })
             }
-            className="clarzeit-big-button"
+            className="clartag-big-button"
           >
             <span className="text-3xl">{next.icon}</span>
             <span>{next.name} starten</span>

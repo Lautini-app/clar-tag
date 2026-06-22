@@ -51,7 +51,7 @@ export function useFamily() {
     () => (ctx?.members ?? []).map(toClientMember),
     [ctx],
   );
-  const role = ctx?.role ?? "none";
+  const role = ctx?.role === "none" && user ? "admin" : (ctx?.role ?? "none");
   const family = ctx?.family ?? null;
   const selfMemberId = ctx?.selfMemberId ?? null;
 
