@@ -39,3 +39,23 @@ ALTER TABLE public.workflow_schedules
 CREATE INDEX idx_schedules_recurrence
   ON public.workflow_schedules(parent_recurrence_id)
   WHERE parent_recurrence_id IS NOT NULL;
+
+
+-- 3. Calendar token for iCal feed
+CREATE TABLE public.calendar_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  token UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_calendar_tokens_token ON public.calendar_tokens(token);
+
+ALTER TABLE public.calendar_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users view own calendar token" ON public.calendar_tokens
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users insert own calendar token" ON public.calendar_tokens
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users delete own calendar token" ON public.calendar_tokens
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);

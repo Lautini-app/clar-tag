@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Calendar, Copy, Plus, RefreshCw } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { STAGE_META, memberStage, type FamilyMember } from "@/lib/storage";
 import { useAuth, signOut } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
 import { MemberDialog } from "@/components/family/MemberDialog";
 import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
+import { getOrCreateCalendarToken, resetCalendarToken } from "@/lib/calendar-token.functions";
 
 export const Route = createFileRoute("/einstellungen")({
   component: Einstellungen,
@@ -142,6 +144,8 @@ function Einstellungen() {
       />
 
 
+      <CalendarSubscription />
+
       <Group title="App installieren">
         <p className="text-sm text-muted-foreground">
           Im Browser: Teilen → Zum Home-Bildschirm.
@@ -266,5 +270,113 @@ function StylePreview({ style }: { style: "bar" | "blocks" | "ring" }) {
         strokeDashoffset={2 * Math.PI * 11 * 0.35}
       />
     </svg>
+  );
+}
+
+function CalendarSubscription() {
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const getToken = useServerFn(getOrCreateCalendarToken);
+  const doReset = useServerFn(resetCalendarToken);
+
+  const loadToken = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getToken({});
+      setToken(res.token);
+    } catch (e) {
+      console.error("getOrCreateCalendarToken failed", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [getToken]);
+
+  const calUrl = token
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/calendar/${token}`
+    : null;
+
+  async function copyUrl() {
+    if (!calUrl) return;
+    try {
+      await navigator.clipboard.writeText(calUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  }
+
+  async function handleReset() {
+    setResetting(true);
+    try {
+      const res = await doReset({});
+      setToken(res.token);
+    } catch (e) {
+      console.error("resetCalendarToken failed", e);
+    } finally {
+      setResetting(false);
+    }
+  }
+
+  return (
+    <Group title="Kalender-Abo">
+      <div className="space-y-3">
+        <div className="flex items-start gap-3">
+          <Calendar className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Abonniere deine geplanten Routinen in Apple Kalender, Google Calendar oder Outlook.
+          </p>
+        </div>
+
+        {!token ? (
+          <button
+            onClick={loadToken}
+            disabled={loading}
+            className="w-full rounded-[var(--radius-md)] border border-border bg-card px-3 py-2.5 text-sm font-medium text-foreground disabled:opacity-50"
+          >
+            {loading ? "Wird erstellt …" : "Kalender-Link erstellen"}
+          </button>
+        ) : (
+          <>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={calUrl ?? ""}
+                className="flex-1 min-w-0 rounded-[var(--radius-md)] border border-border bg-card px-3 py-2 text-xs text-foreground font-mono"
+                onFocus={(e) => e.target.select()}
+              />
+              <button
+                onClick={copyUrl}
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-card px-3 py-2 text-xs font-medium text-foreground"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                {copied ? "Kopiert!" : "Kopieren"}
+              </button>
+            </div>
+
+            <details className="text-xs text-muted-foreground">
+              <summary className="cursor-pointer font-medium">Anleitung</summary>
+              <ol className="mt-2 ml-4 list-decimal space-y-1">
+                <li><strong>Apple Kalender:</strong> Kalender → Ablage → Neues Kalenderabonnement → URL einfügen</li>
+                <li><strong>iPhone:</strong> Einstellungen → Kalender → Accounts → Kalenderabo hinzufügen → URL einfügen</li>
+                <li><strong>Google Calendar:</strong> Einstellungen → Kalender hinzufügen → Per URL → URL einfügen</li>
+              </ol>
+            </details>
+
+            <button
+              onClick={handleReset}
+              disabled={resetting}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <RefreshCw className={`h-3 w-3 ${resetting ? "animate-spin" : ""}`} />
+              {resetting ? "Wird erneuert …" : "Link erneuern (alter Link wird ungültig)"}
+            </button>
+          </>
+        )}
+      </div>
+    </Group>
   );
 }
