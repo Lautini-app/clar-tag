@@ -9,6 +9,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { sfx } from "@/lib/audio";
 import { RingTimer } from "@/components/RingTimer";
 import { recordCompletion } from "@/lib/completions.functions";
+import { markTodayScheduleDone } from "@/lib/schedules.functions";
 import { useFamily } from "@/hooks/use-family";
 import { setStatus, clearStatus } from "@/lib/member-status";
 
@@ -34,18 +35,20 @@ function Runner() {
 
   const recordedRef = useRef<string | null>(null);
   const recordFn = useServerFn(recordCompletion);
+  const markDoneFn = useServerFn(markTodayScheduleDone);
   const qc = useQueryClient();
   useEffect(() => {
     if (phase !== "done") return;
-    // record at most once per "done" entry; "Nochmal" resets phase to intro,
-    // which clears the guard for the next completion.
     const stamp = `${workflowId}-${Date.now()}`;
     if (recordedRef.current === stamp) return;
     recordedRef.current = stamp;
     recordFn({ data: { workflowRef: workflowId } })
       .then(() => qc.invalidateQueries({ queryKey: ["completions"] }))
       .catch((e) => console.error("recordCompletion failed", e));
-  }, [phase, workflowId, recordFn, qc]);
+    markDoneFn({ data: { workflowRef: workflowId } })
+      .then(() => qc.invalidateQueries({ queryKey: ["schedules"] }))
+      .catch((e) => console.error("markTodayScheduleDone failed", e));
+  }, [phase, workflowId, recordFn, markDoneFn, qc]);
   useEffect(() => {
     if (phase === "intro") recordedRef.current = null;
   }, [phase]);

@@ -2,12 +2,14 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, Plus, Repeat, Trash2 } from "lucide-react";
 import { categoryMeta, workflowsByCategory, type Category } from "@/lib/workflows";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { deleteSchedule, listSchedules } from "@/lib/schedules.functions";
 import { dayBounds, fmtTime, useScheduleViews, weekBounds } from "@/lib/schedule-views";
 import { useAuth } from "@/hooks/use-auth";
+import { listRecurrences, deleteRecurrence } from "@/lib/recurrence.functions";
+import { formatRecurrenceSummary } from "@/lib/recurrence";
 
 export const Route = createFileRoute("/routinen")({
   component: Routinen,
@@ -146,6 +148,8 @@ function CalendarView() {
   const qc = useQueryClient();
   const fetchSchedules = useServerFn(listSchedules);
   const removeSchedule = useServerFn(deleteSchedule);
+  const fetchRecurrences = useServerFn(listRecurrences);
+  const removeRecurrence = useServerFn(deleteRecurrence);
   const { user } = useAuth();
 
   const now = useMemo(() => new Date(), []);
@@ -157,11 +161,50 @@ function CalendarView() {
     enabled: !!user,
   });
   const { views } = useScheduleViews(schedules);
+  const { data: recurrences = [] } = useQuery({
+    queryKey: ["recurrences"],
+    queryFn: () => fetchRecurrences({}),
+    enabled: !!user,
+  });
 
   async function onDelete(id: string) {
     await removeSchedule({ data: { id } });
     qc.invalidateQueries({ queryKey: ["schedules"] });
   }
+
+  async function onDeleteRecurrence(id: string) {
+    await removeRecurrence({ data: { id } });
+    qc.invalidateQueries({ queryKey: ["recurrences"] });
+    qc.invalidateQueries({ queryKey: ["schedules"] });
+  }
+
+  const recurrenceSection = recurrences.length > 0 && (
+    <section className="mt-6">
+      <h2 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <Repeat className="h-3.5 w-3.5" />
+        Wiederholungen
+      </h2>
+      <ul className="grid gap-2">
+        {recurrences.filter((r) => r.recurrence_type !== "once").map((r) => (
+          <li
+            key={r.id}
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
+          >
+            <div className="flex-1 text-sm text-foreground">
+              {formatRecurrenceSummary(r, r.workflow_key ?? "Routine")}
+            </div>
+            <button
+              onClick={() => onDeleteRecurrence(r.id)}
+              className="rounded-md p-1 text-muted-foreground hover:text-destructive"
+              aria-label="Wiederholung löschen"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 
   if (view === "heute") {
     return (
@@ -202,6 +245,7 @@ function CalendarView() {
             ))}
           </ul>
         )}
+        {recurrenceSection}
       </div>
     );
   }
@@ -268,6 +312,7 @@ function CalendarView() {
           </div>
         ))}
       </div>
+      {recurrenceSection}
     </div>
   );
 }

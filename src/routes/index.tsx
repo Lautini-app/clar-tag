@@ -1,18 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { CountdownCard } from "@/components/CountdownCard";
 import { useSettings } from "@/hooks/use-settings";
 import { useFamily } from "@/hooks/use-family";
 import { MemberSwitcher } from "@/components/family/MemberSwitcher";
 import { AdminTodayOverview } from "@/components/family/AdminTodayOverview";
-import { Calendar, ChevronRight, Compass, ListChecks, Play, Sparkles } from "lucide-react";
-import { listSchedules } from "@/lib/schedules.functions";
+import { Calendar, ChevronRight, Compass, ListChecks, Play, SkipForward, Sparkles } from "lucide-react";
+import { listSchedules, updateScheduleStatus } from "@/lib/schedules.functions";
 import { dayBounds, fmtTime, useScheduleViews, type ScheduleView } from "@/lib/schedule-views";
 import { getWorkflow } from "@/lib/workflows";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { extendRecurrenceSchedules } from "@/lib/recurrence.functions";
 
 export const Route = createFileRoute("/")({
   component: Today,
@@ -22,8 +23,11 @@ function Today() {
   const { settings, loaded } = useSettings();
   const { activeMember, stage, toggles } = useFamily();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const fetchSchedules = useServerFn(listSchedules);
   const fetchUser = useServerFn(listUserWorkflows);
+  const extendRec = useServerFn(extendRecurrenceSchedules);
+  const skipFn = useServerFn(updateScheduleStatus);
   const { user } = useAuth();
   const range = useMemo(() => dayBounds(new Date()), []);
   const { data: schedules = [] } = useQuery({
@@ -37,6 +41,11 @@ function Today() {
     enabled: !!user,
   });
   const { views } = useScheduleViews(schedules);
+
+  useEffect(() => {
+    if (!user) return;
+    extendRec({}).catch((e) => console.error("extendRecurrenceSchedules failed", e));
+  }, [user, extendRec]);
 
   if (!loaded) return null;
 
@@ -120,25 +129,50 @@ function Today() {
             {views.map((s) => (
               <li
                 key={s.id}
-                className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
+                className={`flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 ${
+                  s.status !== "planned" ? "opacity-50" : ""
+                }`}
               >
                 <div className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
                   {fmtTime(s.scheduled_at)}
                 </div>
                 <span className="text-xl">{s.icon}</span>
-                <div className="flex-1 text-sm font-medium text-foreground">{s.name}</div>
-                <button
-                  onClick={() =>
-                    navigate({
-                      to: "/run/$workflowId",
-                      params: { workflowId: s.ref },
-                    })
-                  }
-                  className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"
-                  aria-label="Starten"
-                >
-                  <Play className="h-4 w-4" />
-                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-foreground truncate">{s.name}</div>
+                  {s.status === "done" && (
+                    <div className="text-[11px] text-primary">Erledigt ✓</div>
+                  )}
+                  {s.status === "skipped" && (
+                    <div className="text-[11px] text-muted-foreground">Übersprungen</div>
+                  )}
+                </div>
+                {s.status === "planned" && (
+                  <>
+                    <button
+                      onClick={async () => {
+                        await skipFn({ data: { id: s.id, status: "skipped" } });
+                        qc.invalidateQueries({ queryKey: ["schedules"] });
+                      }}
+                      className="grid h-8 w-8 place-items-center rounded-full border border-border text-muted-foreground"
+                      aria-label="Überspringen"
+                      title="Überspringen"
+                    >
+                      <SkipForward className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        navigate({
+                          to: "/run/$workflowId",
+                          params: { workflowId: s.ref },
+                        })
+                      }
+                      className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"
+                      aria-label="Starten"
+                    >
+                      <Play className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
               </li>
             ))}
           </ul>

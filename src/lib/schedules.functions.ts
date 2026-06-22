@@ -96,3 +96,43 @@ export const updateScheduleStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const markDoneSchema = z
+  .object({ workflowRef: z.string().min(1).max(80) })
+  .transform((v) => {
+    const isUuid = UUID_RE.test(v.workflowRef);
+    return {
+      workflow_id: isUuid ? v.workflowRef : null,
+      workflow_key: isUuid ? null : v.workflowRef,
+    };
+  });
+
+export const markTodayScheduleDone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => markDoneSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    let query = supabase
+      .from("workflow_schedules")
+      .update({ status: "done" })
+      .eq("status", "planned")
+      .gte("scheduled_at", startOfDay.toISOString())
+      .lt("scheduled_at", endOfDay.toISOString());
+
+    if (data.workflow_id) {
+      query = query.eq("workflow_id", data.workflow_id);
+    } else if (data.workflow_key) {
+      query = query.eq("workflow_key", data.workflow_key);
+    } else {
+      return { ok: false };
+    }
+
+    const { error } = await query;
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
