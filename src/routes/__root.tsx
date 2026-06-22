@@ -7,12 +7,13 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { initEmbeddedShellBridge } from "@/lib/embedded-shell";
+import { consumeClarHandoff, hasClarSsoPending, CLAR_SSO_PENDING_KEY } from "@/lib/clar-sso";
 
 function NotFoundComponent() {
   return (
@@ -121,10 +122,52 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  const [ssoPendingAtMount] = useState(() =>
+    typeof window !== "undefined" && hasClarSsoPending(),
+  );
+  const [ssoReady, setSsoReady] = useState(!ssoPendingAtMount);
+
   useEffect(() => {
     const teardown = initEmbeddedShellBridge(supabase);
     return teardown;
   }, []);
+
+  useEffect(() => {
+    if (!ssoPendingAtMount) return;
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      try { sessionStorage.removeItem(CLAR_SSO_PENDING_KEY); } catch {}
+      setSsoReady(true);
+    };
+    const timeoutId = setTimeout(() => {
+      console.warn("[clar SSO] consumeClarHandoff timed out");
+      settle();
+    }, 2500);
+    void (async () => {
+      try {
+        await consumeClarHandoff();
+      } catch (e) {
+        console.error("[clar SSO] consumeClarHandoff threw", e);
+      }
+      settle();
+      clearTimeout(timeoutId);
+    })();
+    return () => clearTimeout(timeoutId);
+  }, [ssoPendingAtMount]);
+
+  if (!ssoReady) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "var(--background, #F5F2ED)" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ width: 32, height: 32, margin: "0 auto 12px", border: "2px solid #ccc", borderTopColor: "#7A5BAE", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <p style={{ fontSize: 14, color: "#888" }}>Anmeldung wird übernommen …</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
