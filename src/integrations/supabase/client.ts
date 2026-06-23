@@ -18,10 +18,25 @@ function createSupabaseClient() {
     throw new Error(message);
   }
 
+  const inIframe = typeof window !== 'undefined' && window.self !== window.top;
+
+  const memoryStore: Record<string, string> = {};
+  const iframeStorage = {
+    getItem: (key: string) => memoryStore[key] ?? null,
+    setItem: (key: string, value: string) => { memoryStore[key] = value; },
+    removeItem: (key: string) => { delete memoryStore[key]; },
+  };
+
+  function getStorage() {
+    if (typeof window === 'undefined') return undefined;
+    if (inIframe) return iframeStorage;
+    return localStorage;
+  }
+
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     db: { schema: 'clar_tag' },
     auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      storage: getStorage(),
       persistSession: true,
       autoRefreshToken: true,
     }
