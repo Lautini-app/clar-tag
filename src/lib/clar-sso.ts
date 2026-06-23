@@ -2,6 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const CLAR_SSO_PENDING_KEY = "clar_sso_pending";
 
+const inIframe = typeof window !== "undefined" && (() => { try { return window.self !== window.top; } catch { return true; } })();
+
 export function hasClarSsoPending(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -16,6 +18,40 @@ export function hasClarSsoPending(): boolean {
     if (sessionStorage.getItem(CLAR_SSO_PENDING_KEY) === "1") return true;
     return false;
   } catch {
+    return false;
+  }
+}
+
+export async function requestParentSession(): Promise<boolean> {
+  if (!inIframe) return false;
+  try {
+    const tokens = await new Promise<{ access_token: string; refresh_token: string } | null>((resolve) => {
+      const timeout = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        resolve(null);
+      }, 1500);
+      function handler(e: MessageEvent) {
+        if (!e.data || e.data.type !== "clar_session") return;
+        window.removeEventListener("message", handler);
+        clearTimeout(timeout);
+        if (e.data.access_token && e.data.refresh_token) {
+          resolve({ access_token: e.data.access_token, refresh_token: e.data.refresh_token });
+        } else {
+          resolve(null);
+        }
+      }
+      window.addEventListener("message", handler);
+      window.parent.postMessage({ type: "clar_request_session" }, "*");
+    });
+    if (!tokens) return false;
+    const { error } = await supabase.auth.setSession(tokens);
+    if (error) {
+      console.error("[clar SSO] parent session setSession failed:", error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[clar SSO] requestParentSession failed:", e);
     return false;
   }
 }
