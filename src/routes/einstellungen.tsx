@@ -192,6 +192,21 @@ function Einstellungen() {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         clar · tag — Teil der clar App-Familie von Lautini
       </p>
+
+      <nav
+        aria-label="Rechtliches"
+        className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground"
+      >
+        <a href="https://www.iubenda.com/privacy-policy/80183735" target="_blank" rel="noopener" className="hover:text-foreground">Datenschutz</a>
+        <span aria-hidden>·</span>
+        <a href="https://blog.lautini.ch/datenschutz-clar-log" target="_blank" rel="noopener" className="hover:text-foreground">Datenschutz clar·log</a>
+        <span aria-hidden>·</span>
+        <a href="https://blog.lautini.ch/agb-clar-log" target="_blank" rel="noopener" className="hover:text-foreground">AGB clar·log</a>
+        <span aria-hidden>·</span>
+        <a href="https://www.iubenda.com/privacy-policy/44495718/cookie-policy" target="_blank" rel="noopener" className="hover:text-foreground">Cookie-Richtlinie</a>
+        <span aria-hidden>·</span>
+        <a href="https://blog.lautini.ch/impressum" target="_blank" rel="noopener" className="hover:text-foreground">Impressum</a>
+      </nav>
     </div>
   );
 }
