@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Copy, Plus, RefreshCw } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
@@ -8,6 +8,8 @@ import { useAuth, signOut } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
 import { MemberDialog } from "@/components/family/MemberDialog";
 import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
+import { EmailConsentModal } from "@/components/EmailConsentModal";
+import { getEmailConsent, type ConsentLevel } from "@/lib/email-consent";
 import { getOrCreateCalendarToken, resetCalendarToken } from "@/lib/calendar-token.functions";
 
 export const Route = createFileRoute("/einstellungen")({
@@ -170,6 +172,8 @@ function Einstellungen() {
         </button>
       </div>
 
+      <EmailConsentSection userId={user?.id ?? null} />
+
       <div className="mt-6 rounded-[var(--radius-lg)] border border-destructive/30 bg-card p-4">
         <div className="text-xs uppercase tracking-wide text-destructive">Gefahrenzone</div>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -188,6 +192,69 @@ function Einstellungen() {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         clar · tag — Teil der clar App-Familie von Lautini
       </p>
+    </div>
+  );
+}
+
+function EmailConsentSection({ userId }: { userId: string | null }) {
+  const [level, setLevel] = useState<ConsentLevel | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    let active = true;
+    (async () => {
+      const row = await getEmailConsent(userId);
+      if (!active) return;
+      setLevel(row?.consent_level ?? null);
+      setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [userId]);
+
+  if (!userId) return null;
+
+  const labels: Record<ConsentLevel, string> = {
+    always: "Ja, dauerhaft",
+    subscription_only: "Ja, nur während Abo",
+    never: "Nein, keine Marketing-E-Mails",
+  };
+
+  return (
+    <div className="mt-6 rounded-[var(--radius-lg)] bg-card p-4">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">
+        E-Mail-Einstellungen
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+        Marketing-E-Mails von clar by Lautini. Transaktionsmails (Login,
+        Rechnung, Account-Sicherheit) erhältst du immer.
+      </p>
+      <div className="mt-3 rounded-[var(--radius-md)] border border-border bg-background p-3">
+        <p className="text-xs text-muted-foreground">Aktuelle Auswahl</p>
+        <p className="mt-1 text-sm font-medium text-foreground">
+          {loading ? "Lade…" : level ? labels[level] : "Keine Auswahl"}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="mt-3 w-full rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm font-medium text-foreground"
+      >
+        Ändern
+      </button>
+
+      {editing && (
+        <EmailConsentModal
+          userId={userId}
+          allowClose
+          onClose={() => setEditing(false)}
+          onDone={(newLevel) => {
+            setLevel(newLevel);
+            setEditing(false);
+          }}
+        />
+      )}
     </div>
   );
 }

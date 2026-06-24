@@ -1,9 +1,11 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
 import { ToolboxFab } from "./ToolboxFab";
 import { useAuth } from "@/hooks/use-auth";
 import { useFamily } from "@/hooks/use-family";
+import { getEmailConsent } from "@/lib/email-consent";
+import { EmailConsentModal } from "@/components/EmailConsentModal";
 
 const PUBLIC_ROUTES = new Set(["/login", "/verbinden"]);
 
@@ -33,6 +35,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   }, [loc.pathname, navigate, session, loading, isPublic]);
 
+  const userId = session?.user?.id ?? null;
+  const needsConsentCheck = !!userId && !isPublic;
+
   return (
     <div
       className={`mx-auto min-h-screen w-full max-w-[390px] bg-background ${
@@ -40,9 +45,48 @@ export function AppShell({ children }: { children: ReactNode }) {
       }`}
       data-stage={stage ?? "admin"}
     >
-      <main className={showNav ? "pb-24" : ""}>{children}</main>
-      {showNav && <BottomNav />}
-      {showNav && <ToolboxFab />}
+      {needsConsentCheck ? (
+        <ConsentGate userId={userId!}>
+          <main className={showNav ? "pb-24" : ""}>{children}</main>
+          {showNav && <BottomNav />}
+          {showNav && <ToolboxFab />}
+        </ConsentGate>
+      ) : (
+        <>
+          <main className={showNav ? "pb-24" : ""}>{children}</main>
+          {showNav && <BottomNav />}
+          {showNav && <ToolboxFab />}
+        </>
+      )}
     </div>
   );
+}
+
+function ConsentGate({ userId, children }: { userId: string; children: ReactNode }) {
+  const [checked, setChecked] = useState(false);
+  const [hasConsent, setHasConsent] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const row = await getEmailConsent(userId);
+      if (!active) return;
+      setHasConsent(!!row);
+      setChecked(true);
+    })();
+    return () => { active = false; };
+  }, [userId]);
+
+  if (!checked) return null;
+
+  if (!hasConsent) {
+    return (
+      <EmailConsentModal
+        userId={userId}
+        onDone={() => setHasConsent(true)}
+      />
+    );
+  }
+
+  return <>{children}</>;
 }
