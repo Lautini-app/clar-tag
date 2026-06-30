@@ -16,6 +16,12 @@ const categorySchema = z.enum([
   "vorbereitung",
   "lernen",
   "gesundheit",
+  "soziales",
+  "reisen",
+  "uebergang",
+  "pflichten",
+  "saisonal",
+  "hobby_outdoor",
   "eigene",
 ]);
 

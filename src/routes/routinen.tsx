@@ -26,7 +26,20 @@ function Routinen() {
   const location = useLocation();
   const [tab, setTab] = useState<"liste" | "kalender">("liste");
   const byCat = workflowsByCategory();
-  const order: Category[] = ["morgen", "abend", "vorbereitung", "lernen", "gesundheit", "eigene"];
+  const order: Category[] = [
+    "morgen",
+    "abend",
+    "vorbereitung",
+    "lernen",
+    "gesundheit",
+    "soziales",
+    "reisen",
+    "uebergang",
+    "pflichten",
+    "saisonal",
+    "hobby_outdoor",
+    "eigene",
+  ];
 
   const fetchUserWorkflows = useServerFn(listUserWorkflows);
   const { user } = useAuth();
@@ -46,6 +59,12 @@ function Routinen() {
     vorbereitung: [],
     lernen: [],
     gesundheit: [],
+    soziales: [],
+    reisen: [],
+    uebergang: [],
+    pflichten: [],
+    saisonal: [],
+    hobby_outdoor: [],
     eigene: [],
   };
   for (const c of order) {

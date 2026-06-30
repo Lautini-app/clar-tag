@@ -1,5 +1,17 @@
 export type Grade = "grob" | "mittel" | "fein";
-export type Category = "morgen" | "abend" | "vorbereitung" | "lernen" | "gesundheit" | "eigene";
+export type Category =
+  | "morgen"
+  | "abend"
+  | "vorbereitung"
+  | "lernen"
+  | "gesundheit"
+  | "soziales"
+  | "reisen"
+  | "uebergang"
+  | "pflichten"
+  | "saisonal"
+  | "hobby_outdoor"
+  | "eigene";
 
 export type Step = {
   emoji: string;
@@ -8,12 +20,23 @@ export type Step = {
   duration: number; // minutes, 0 = no timer
 };
 
+export type Variant = {
+  id: string;
+  label: string;
+  material?: string[];
+};
+
 export type Workflow = {
   id: string;
   name: string;
   icon: string;
   category: Category;
   steps: Record<Grade, Step[]>;
+  // Optional library metadata — surfaced in the detail view.
+  defaultGrade?: Grade;
+  material?: string[];
+  adhsTips?: string;
+  variants?: Variant[];
 };
 
 export const categoryMeta: Record<Category, { label: string; icon: string }> = {
@@ -22,6 +45,12 @@ export const categoryMeta: Record<Category, { label: string; icon: string }> = {
   vorbereitung: { label: "Vorbereitung", icon: "⭐" },
   lernen: { label: "Lernen", icon: "📚" },
   gesundheit: { label: "Gesundheit", icon: "💊" },
+  soziales: { label: "Soziales", icon: "🎁" },
+  reisen: { label: "Reisen", icon: "🧳" },
+  uebergang: { label: "Übergang", icon: "🚪" },
+  pflichten: { label: "Pflichten", icon: "📋" },
+  saisonal: { label: "Saisonal", icon: "🍂" },
+  hobby_outdoor: { label: "Hobby & Outdoor", icon: "🌲" },
   eigene: { label: "Eigene", icon: "✏️" },
 };
 
@@ -31,7 +60,9 @@ const trio = (a: Step[], b: Step[], c: Step[]): Record<Grade, Step[]> => ({
   fein: c,
 });
 
-export const workflows: Workflow[] = [
+import { bibliothekRoutinen } from "@/lib/library/bibliothek-routinen";
+
+const builtInWorkflows: Workflow[] = [
   {
     id: "morgen_bus",
     name: "Morgenroutine · Bus",
@@ -351,6 +382,8 @@ export const workflows: Workflow[] = [
   },
 ];
 
+export const workflows: Workflow[] = [...builtInWorkflows, ...bibliothekRoutinen];
+
 export function getWorkflow(id: string) {
   return workflows.find((w) => w.id === id);
 }
@@ -362,6 +395,12 @@ export function workflowsByCategory(): Record<Category, Workflow[]> {
     vorbereitung: [],
     lernen: [],
     gesundheit: [],
+    soziales: [],
+    reisen: [],
+    uebergang: [],
+    pflichten: [],
+    saisonal: [],
+    hobby_outdoor: [],
     eigene: [],
   };
   for (const w of workflows) out[w.category].push(w);

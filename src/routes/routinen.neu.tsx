@@ -38,6 +38,8 @@ function NeueRoutine() {
     search.basis ? (getWorkflow(search.basis) ?? null) : null,
   );
   const [copyGrade, setCopyGrade] = useState<Grade>(search.grad ?? "mittel");
+  // Sport-Session: Variantenwahl. Default "studio" damit es kein Blocker ist.
+  const [variantId, setVariantId] = useState<string | null>(null);
 
   // Person darf gar nichts → sanfter Hinweis
   if (!isAdminView && !canLibrary && !canFreeCreate) {
@@ -118,7 +120,9 @@ function NeueRoutine() {
         onCancel={() => setMode("chooser")}
         onPick={(w) => {
           setBase(w);
-          setCopyGrade("mittel");
+          setCopyGrade(w.defaultGrade ?? "mittel");
+          // Beim Importieren: Default-Variant ist die erste (für Sport: "Studio").
+          setVariantId(w.variants?.[0]?.id ?? null);
           setMode("blank");
         }}
       />
@@ -126,9 +130,12 @@ function NeueRoutine() {
   }
 
   // editor (blank | from-base | chips)
+  const variantLabel = base?.variants?.find((v) => v.id === variantId)?.label;
   const initial = base
     ? {
-        name: `${base.name} (eigene)`,
+        name: variantLabel
+          ? `${base.name} · ${variantLabel} (eigene)`
+          : `${base.name} (eigene)`,
         category: base.category,
         icon: base.icon,
         steps: base.steps[copyGrade].map((s) => ({
@@ -197,7 +204,19 @@ function LibraryPicker({
   onPick: (w: Workflow) => void;
   onCancel: () => void;
 }) {
-  const order: Category[] = ["morgen", "abend", "vorbereitung", "lernen", "gesundheit"];
+  const order: Category[] = [
+    "morgen",
+    "abend",
+    "vorbereitung",
+    "lernen",
+    "gesundheit",
+    "soziales",
+    "reisen",
+    "uebergang",
+    "pflichten",
+    "saisonal",
+    "hobby_outdoor",
+  ];
   return (
     <div className="px-5 pb-10 pt-6">
       <button

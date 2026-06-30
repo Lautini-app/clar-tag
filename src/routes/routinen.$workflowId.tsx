@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Pencil, Play } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Info, Package, Pencil, Play } from "lucide-react";
 import { type Grade } from "@/lib/workflows";
 import { useResolvedWorkflow } from "@/lib/workflow-resolver";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,14 @@ function Detail() {
   const navigate = useNavigate();
   const { workflow: w, isUser, isLoading } = useResolvedWorkflow(workflowId);
   const [grade, setGrade] = useState<Grade>("mittel");
+  const [variantId, setVariantId] = useState<string | null>(null);
+
+  // Default-Feinheitsgrad + Default-Variante übernehmen, sobald die Routine geladen ist.
+  useEffect(() => {
+    if (!w) return;
+    if (w.defaultGrade) setGrade(w.defaultGrade);
+    if (w.variants?.[0]) setVariantId(w.variants[0].id);
+  }, [w?.id]);
 
   if (location.pathname.endsWith("/bearbeiten")) {
     return <Outlet />;
@@ -43,6 +51,8 @@ function Detail() {
 
   const steps = w.steps[grade];
   const total = steps.reduce((s, x) => s + x.duration, 0);
+  const activeVariant = w.variants?.find((v) => v.id === variantId) ?? w.variants?.[0];
+  const material = activeVariant?.material ?? w.material;
 
   return (
     <div className="px-5 pb-10 pt-6">
@@ -88,20 +98,48 @@ function Detail() {
         </section>
       )}
 
+      {!isUser && w.variants && w.variants.length > 0 && (
+        <section className="mb-6">
+          <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Variante
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            {w.variants.map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setVariantId(v.id)}
+                className={`rounded-[var(--radius-md)] border p-3 text-left transition ${
+                  (activeVariant?.id ?? w.variants?.[0]?.id) === v.id
+                    ? "border-primary bg-primary-soft"
+                    : "border-border bg-card"
+                }`}
+              >
+                <div className="text-sm font-medium text-foreground">{v.label}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mb-6 rounded-[var(--radius-lg)] bg-card p-4">
         <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Schritte
         </h2>
         <ul className="grid gap-1">
           {steps.map((s, i) => (
-            <li key={i} className="flex items-center gap-3 py-1.5 text-sm">
-              <span className="w-5 text-right font-mono text-xs text-muted-foreground">
+            <li key={i} className="flex items-start gap-3 py-1.5 text-sm">
+              <span className="w-5 pt-0.5 text-right font-mono text-xs text-muted-foreground">
                 {i + 1}.
               </span>
-              <span className="text-lg">{s.emoji}</span>
-              <span className="flex-1 text-foreground">{s.text}</span>
+              <span className="pt-0.5 text-lg">{s.emoji}</span>
+              <span className="flex-1 text-foreground">
+                {s.text}
+                {s.hint && (
+                  <span className="mt-0.5 block text-[11px] text-muted-foreground">{s.hint}</span>
+                )}
+              </span>
               {s.duration > 0 && (
-                <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                <span className="pt-1 font-mono text-xs tabular-nums text-muted-foreground">
                   {s.duration} min
                 </span>
               )}
@@ -109,6 +147,35 @@ function Detail() {
           ))}
         </ul>
       </section>
+
+      {material && material.length > 0 && (
+        <section className="mb-6 rounded-[var(--radius-lg)] bg-card p-4">
+          <h2 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <Package className="h-3.5 w-3.5" />
+            Material{activeVariant ? ` · ${activeVariant.label}` : ""}
+          </h2>
+          <ul className="grid gap-1 pl-1 text-sm text-foreground">
+            {material.map((m, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="pt-1.5 text-muted-foreground">·</span>
+                <span>{m}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {w.adhsTips && (
+        <section className="mb-6 rounded-[var(--radius-lg)] border border-border bg-secondary/40 p-4">
+          <h2 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <Info className="h-3.5 w-3.5" />
+            ADHS-Stolperfallen
+          </h2>
+          <p className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+            {w.adhsTips}
+          </p>
+        </section>
+      )}
 
       <div className="grid gap-2">
         <Button
