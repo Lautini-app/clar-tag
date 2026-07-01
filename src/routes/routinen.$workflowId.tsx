@@ -1,10 +1,12 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Info, Package, Pencil, Play } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeft, Download, Info, Package, Pencil, Play } from "lucide-react";
 import { type Grade } from "@/lib/workflows";
 import { useResolvedWorkflow } from "@/lib/workflow-resolver";
 import { Button } from "@/components/ui/button";
 import { SchedulePlanner } from "@/components/SchedulePlanner";
+import { buildExport, downloadRoutineExport } from "@/lib/routine-export";
 
 export const Route = createFileRoute("/routinen/$workflowId")({
   component: Detail,
@@ -209,6 +211,38 @@ function Detail() {
           <Pencil className="h-4 w-4" />
           {isUser ? "Bearbeiten" : "Anpassen"}
         </Button>
+        {isUser && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              try {
+                const exportObj = buildExport({
+                  name: w.name,
+                  icon: w.icon,
+                  category: w.category,
+                  grade,
+                  steps: steps.map((s) => ({
+                    emoji: s.emoji,
+                    text: s.text,
+                    hint: s.hint ?? null,
+                    duration: s.duration,
+                  })),
+                  material: w.material ?? null,
+                  adhs_tips: w.adhsTips ?? null,
+                });
+                downloadRoutineExport(exportObj);
+                toast.success("Routine als JSON exportiert");
+              } catch (err) {
+                toast.error(`Export fehlgeschlagen: ${(err as Error).message}`);
+              }
+            }}
+            className="h-11"
+            aria-label="Als JSON exportieren"
+          >
+            <Download className="h-4 w-4" />
+            Als JSON exportieren
+          </Button>
+        )}
         <SchedulePlanner workflowRef={w.id} workflowName={w.name} />
       </div>
     </div>

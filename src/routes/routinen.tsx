@@ -6,6 +6,7 @@ import { BookOpen, ChevronRight, Plus, Repeat, Trash2 } from "lucide-react";
 import { categoryMeta, workflowsByCategory, type Category } from "@/lib/workflows";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { listLibraryRoutines, type LibraryRoutine } from "@/lib/library.functions";
+import { ImportRoutineButton } from "@/components/ImportRoutineDialog";
 import { deleteSchedule, listSchedules } from "@/lib/schedules.functions";
 import { dayBounds, fmtTime, useScheduleViews, weekBounds } from "@/lib/schedule-views";
 import { useAuth } from "@/hooks/use-auth";
@@ -87,12 +88,15 @@ function Routinen() {
           <div className="text-xs uppercase tracking-widest text-muted-foreground">Routinen</div>
           <h1 className="mt-1 text-2xl font-semibold text-foreground">Deine Abläufe</h1>
         </div>
-        <Link
-          to="/routinen/neu"
-          className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
-        >
-          <Plus className="h-4 w-4" /> Neu
-        </Link>
+        <div className="flex items-center gap-2">
+          <ImportRoutineButton />
+          <Link
+            to="/routinen/neu"
+            className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
+          >
+            <Plus className="h-4 w-4" /> Neu
+          </Link>
+        </div>
       </header>
 
       <div className="mb-6 inline-flex rounded-[var(--radius-md)] bg-secondary p-1">
