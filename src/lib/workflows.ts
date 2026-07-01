@@ -60,8 +60,6 @@ const trio = (a: Step[], b: Step[], c: Step[]): Record<Grade, Step[]> => ({
   fein: c,
 });
 
-import { bibliothekRoutinen } from "@/lib/library/bibliothek-routinen";
-
 const builtInWorkflows: Workflow[] = [
   {
     id: "morgen_bus",
@@ -382,7 +380,10 @@ const builtInWorkflows: Workflow[] = [
   },
 ];
 
-export const workflows: Workflow[] = [...builtInWorkflows, ...bibliothekRoutinen];
+// Die 10 Bibliotheks-Routinen leben in `clar_tag.library_routines` (Supabase)
+// und werden über den Bibliothek-Tab geladen. Der TS-Datensatz in
+// `src/lib/library/bibliothek-routinen.ts` dient nur als Seed-Quelle.
+export const workflows: Workflow[] = builtInWorkflows;
 
 export function getWorkflow(id: string) {
   return workflows.find((w) => w.id === id);

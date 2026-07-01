@@ -34,10 +34,15 @@ export type UserWorkflow = {
   category: UserWorkflowCategory;
   icon: string | null;
   steps: UserWorkflowStep[];
+  material: string[];
+  adhs_tips: string | null;
   is_archived: boolean;
   created_at: string;
   updated_at: string;
 };
+
+const USER_WORKFLOW_COLUMNS =
+  "id,name,category,icon,steps,material,adhs_tips,is_archived,created_at,updated_at";
 
 export const listUserWorkflows = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -45,7 +50,7 @@ export const listUserWorkflows = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data, error } = await supabase
       .from("workflows")
-      .select("id,name,category,icon,steps,is_archived,created_at,updated_at")
+      .select(USER_WORKFLOW_COLUMNS)
       .eq("is_archived", false)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -59,7 +64,7 @@ export const getUserWorkflow = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("workflows")
-      .select("id,name,category,icon,steps,is_archived,created_at,updated_at")
+      .select(USER_WORKFLOW_COLUMNS)
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -72,6 +77,8 @@ const upsertSchema = z.object({
   category: categorySchema,
   icon: z.string().max(8).optional().nullable(),
   steps: z.array(stepSchema).min(1).max(40),
+  material: z.array(z.string().max(200)).max(60).optional(),
+  adhs_tips: z.string().max(2000).optional().nullable(),
 });
 
 export const saveUserWorkflow = createServerFn({ method: "POST" })
@@ -87,6 +94,8 @@ export const saveUserWorkflow = createServerFn({ method: "POST" })
           category: data.category,
           icon: data.icon ?? null,
           steps: data.steps,
+          material: data.material ?? [],
+          adhs_tips: data.adhs_tips ?? null,
         })
         .eq("id", data.id)
         .select("id")
@@ -102,6 +111,8 @@ export const saveUserWorkflow = createServerFn({ method: "POST" })
         category: data.category,
         icon: data.icon ?? null,
         steps: data.steps,
+        material: data.material ?? [],
+        adhs_tips: data.adhs_tips ?? null,
       })
       .select("id")
       .single();

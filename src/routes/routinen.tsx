@@ -2,9 +2,10 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronRight, Plus, Repeat, Trash2 } from "lucide-react";
+import { BookOpen, ChevronRight, Plus, Repeat, Trash2 } from "lucide-react";
 import { categoryMeta, workflowsByCategory, type Category } from "@/lib/workflows";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
+import { listLibraryRoutines, type LibraryRoutine } from "@/lib/library.functions";
 import { deleteSchedule, listSchedules } from "@/lib/schedules.functions";
 import { dayBounds, fmtTime, useScheduleViews, weekBounds } from "@/lib/schedule-views";
 import { useAuth } from "@/hooks/use-auth";
@@ -24,7 +25,7 @@ type ListItem = {
 
 function Routinen() {
   const location = useLocation();
-  const [tab, setTab] = useState<"liste" | "kalender">("liste");
+  const [tab, setTab] = useState<"meine" | "bibliothek" | "kalender">("meine");
   const byCat = workflowsByCategory();
   const order: Category[] = [
     "morgen",
@@ -95,20 +96,26 @@ function Routinen() {
       </header>
 
       <div className="mb-6 inline-flex rounded-[var(--radius-md)] bg-secondary p-1">
-        {(["liste", "kalender"] as const).map((t) => (
+        {(
+          [
+            ["meine", "Meine Routinen"],
+            ["bibliothek", "Bibliothek"],
+            ["kalender", "Kalender"],
+          ] as const
+        ).map(([t, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-[var(--radius-sm)] px-4 py-1.5 text-sm font-medium capitalize transition ${
+            className={`rounded-[var(--radius-sm)] px-4 py-1.5 text-sm font-medium transition ${
               tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
             }`}
           >
-            {t === "liste" ? "Routinen" : "Kalender"}
+            {label}
           </button>
         ))}
       </div>
 
-      {tab === "liste" ? (
+      {tab === "meine" ? (
         <div className="space-y-4">
           {order.map((cat) => {
             const meta = categoryMeta[cat];
@@ -152,9 +159,129 @@ function Routinen() {
             );
           })}
         </div>
+      ) : tab === "bibliothek" ? (
+        <LibraryList />
       ) : (
         <CalendarView />
       )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bibliothek — Karten, gruppiert nach Kategorie
+// ─────────────────────────────────────────────────────────────────────────────
+
+const LIBRARY_CATEGORY_ORDER: string[] = [
+  "gesundheit",
+  "soziales",
+  "vorbereitung",
+  "reisen",
+  "uebergang",
+  "pflichten",
+  "saisonal",
+  "hobby_outdoor",
+];
+
+function libraryCategoryMeta(cat: string): { label: string; icon: string } {
+  const known = (categoryMeta as Record<string, { label: string; icon: string } | undefined>)[cat];
+  if (known) return known;
+  return { label: cat, icon: "✨" };
+}
+
+function gradeLabel(g: LibraryRoutine["default_grade"]): string {
+  return g === "grob" ? "Grob" : g === "fein" ? "Fein" : "Mittel";
+}
+
+function LibraryList() {
+  const { user } = useAuth();
+  const fetchLibrary = useServerFn(listLibraryRoutines);
+  const { data: routines = [], isLoading, error } = useQuery({
+    queryKey: ["library-routines"],
+    queryFn: () => fetchLibrary(),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (isLoading) {
+    return <p className="rounded-[var(--radius-lg)] bg-card p-6 text-sm text-muted-foreground">Bibliothek wird geladen …</p>;
+  }
+  if (error) {
+    return (
+      <p className="rounded-[var(--radius-lg)] bg-card p-6 text-sm text-destructive">
+        Bibliothek konnte nicht geladen werden.
+      </p>
+    );
+  }
+  if (routines.length === 0) {
+    return (
+      <div className="rounded-[var(--radius-lg)] bg-card p-6 text-center text-sm text-muted-foreground">
+        <BookOpen className="mx-auto mb-2 h-6 w-6" />
+        Noch keine Bibliotheks-Routinen.
+      </div>
+    );
+  }
+
+  const byCat = new Map<string, LibraryRoutine[]>();
+  for (const r of routines) {
+    const arr = byCat.get(r.category) ?? [];
+    arr.push(r);
+    byCat.set(r.category, arr);
+  }
+  const cats = [
+    ...LIBRARY_CATEGORY_ORDER.filter((c) => byCat.has(c)),
+    ...[...byCat.keys()].filter((c) => !LIBRARY_CATEGORY_ORDER.includes(c)),
+  ];
+
+  return (
+    <div className="space-y-5">
+      {cats.map((cat) => {
+        const meta = libraryCategoryMeta(cat);
+        const items = byCat.get(cat) ?? [];
+        return (
+          <section key={cat}>
+            <h2 className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="text-base">{meta.icon}</span>
+              {meta.label}
+              <span className="text-[10px] text-muted-foreground/70">({items.length})</span>
+            </h2>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {items.map((r) => {
+                const stepCount =
+                  r.default_grade === "grob"
+                    ? r.steps_grob.length
+                    : r.default_grade === "fein"
+                      ? r.steps_fein.length
+                      : r.steps_mittel.length;
+                return (
+                  <li key={r.id}>
+                    <Link
+                      to="/routinen/bibliothek/$slug"
+                      params={{ slug: r.slug }}
+                      className="flex h-full items-start gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
+                    >
+                      <span className="text-3xl">{r.icon}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-foreground">{r.name}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+                          <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">
+                            {meta.label}
+                          </span>
+                          <span className="rounded-full bg-primary-soft px-2 py-0.5 text-primary-deep">
+                            {gradeLabel(r.default_grade)}
+                          </span>
+                          <span className="text-muted-foreground/70">{stepCount} Schritte</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }

@@ -13,6 +13,20 @@
 
 CREATE SCHEMA IF NOT EXISTS clar_tag;
 
+-- Timestamp-Trigger im clar_tag-Schema bereitstellen (idempotent),
+-- damit die Migration unabhängig davon läuft, ob `public.update_updated_at_column`
+-- bereits existiert.
+CREATE OR REPLACE FUNCTION clar_tag.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = clar_tag, public
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
 CREATE TABLE clar_tag.library_routines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE,
@@ -48,4 +62,4 @@ CREATE POLICY "Library routines readable" ON clar_tag.library_routines
 
 CREATE TRIGGER trg_library_routines_updated_at
   BEFORE UPDATE ON clar_tag.library_routines
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION clar_tag.update_updated_at_column();

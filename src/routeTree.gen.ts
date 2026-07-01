@@ -22,6 +22,7 @@ import { Route as RuheExerciseIdRouteImport } from './routes/ruhe.$exerciseId'
 import { Route as RoutinenNeuRouteImport } from './routes/routinen.neu'
 import { Route as RoutinenWorkflowIdRouteImport } from './routes/routinen.$workflowId'
 import { Route as EntscheidenHelperIdRouteImport } from './routes/entscheiden.$helperId'
+import { Route as RoutinenBibliothekSlugRouteImport } from './routes/routinen.bibliothek.$slug'
 import { Route as RoutinenWorkflowIdBearbeitenRouteImport } from './routes/routinen.$workflowId.bearbeiten'
 
 const VerbindenRoute = VerbindenRouteImport.update({
@@ -89,6 +90,11 @@ const EntscheidenHelperIdRoute = EntscheidenHelperIdRouteImport.update({
   path: '/$helperId',
   getParentRoute: () => EntscheidenRoute,
 } as any)
+const RoutinenBibliothekSlugRoute = RoutinenBibliothekSlugRouteImport.update({
+  id: '/bibliothek/$slug',
+  path: '/bibliothek/$slug',
+  getParentRoute: () => RoutinenRoute,
+} as any)
 const RoutinenWorkflowIdBearbeitenRoute =
   RoutinenWorkflowIdBearbeitenRouteImport.update({
     id: '/bearbeiten',
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
+  '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
+  '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
+  '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
     | '/routinen/$workflowId/bearbeiten'
+    | '/routinen/bibliothek/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
     | '/routinen/$workflowId/bearbeiten'
+    | '/routinen/bibliothek/$slug'
   id:
     | '__root__'
     | '/'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
     | '/routinen/$workflowId/bearbeiten'
+    | '/routinen/bibliothek/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntscheidenHelperIdRouteImport
       parentRoute: typeof EntscheidenRoute
     }
+    '/routinen/bibliothek/$slug': {
+      id: '/routinen/bibliothek/$slug'
+      path: '/bibliothek/$slug'
+      fullPath: '/routinen/bibliothek/$slug'
+      preLoaderRoute: typeof RoutinenBibliothekSlugRouteImport
+      parentRoute: typeof RoutinenRoute
+    }
     '/routinen/$workflowId/bearbeiten': {
       id: '/routinen/$workflowId/bearbeiten'
       path: '/bearbeiten'
@@ -337,11 +356,13 @@ const RoutinenWorkflowIdRouteWithChildren =
 interface RoutinenRouteChildren {
   RoutinenWorkflowIdRoute: typeof RoutinenWorkflowIdRouteWithChildren
   RoutinenNeuRoute: typeof RoutinenNeuRoute
+  RoutinenBibliothekSlugRoute: typeof RoutinenBibliothekSlugRoute
 }
 
 const RoutinenRouteChildren: RoutinenRouteChildren = {
   RoutinenWorkflowIdRoute: RoutinenWorkflowIdRouteWithChildren,
   RoutinenNeuRoute: RoutinenNeuRoute,
+  RoutinenBibliothekSlugRoute: RoutinenBibliothekSlugRoute,
 }
 
 const RoutinenRouteWithChildren = RoutinenRoute._addFileChildren(

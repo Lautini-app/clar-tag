@@ -266,6 +266,8 @@ export type Database = {
           is_archived: boolean
           name: string
           steps: Json
+          material: Json
+          adhs_tips: string | null
           updated_at: string
           user_id: string
         }
@@ -277,6 +279,8 @@ export type Database = {
           is_archived?: boolean
           name: string
           steps?: Json
+          material?: Json
+          adhs_tips?: string | null
           updated_at?: string
           user_id: string
         }
@@ -288,8 +292,67 @@ export type Database = {
           is_archived?: boolean
           name?: string
           steps?: Json
+          material?: Json
+          adhs_tips?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      library_routines: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          icon: string
+          category: string
+          default_grade: string
+          steps_grob: Json
+          steps_mittel: Json
+          steps_fein: Json
+          material: Json
+          adhs_tips: string | null
+          variants: Json | null
+          is_published: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          icon: string
+          category: string
+          default_grade?: string
+          steps_grob?: Json
+          steps_mittel?: Json
+          steps_fein?: Json
+          material?: Json
+          adhs_tips?: string | null
+          variants?: Json | null
+          is_published?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          icon?: string
+          category?: string
+          default_grade?: string
+          steps_grob?: Json
+          steps_mittel?: Json
+          steps_fein?: Json
+          material?: Json
+          adhs_tips?: string | null
+          variants?: Json | null
+          is_published?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

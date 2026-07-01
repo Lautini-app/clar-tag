@@ -47,6 +47,8 @@ export function useResolvedWorkflow(id: string): {
     icon: data.icon || "✏️",
     category: data.category,
     steps: { grob: normSteps, mittel: normSteps, fein: normSteps },
+    material: data.material?.length ? data.material : undefined,
+    adhsTips: data.adhs_tips ?? undefined,
   };
   return { workflow: wf, isUser: true, isLoading: false };
 }
