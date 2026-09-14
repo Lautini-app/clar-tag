@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={`mx-auto min-h-screen w-full max-w-[390px] bg-background ${
+      className={`mx-auto min-h-screen w-full max-w-[390px] bg-surface ${
         simplified ? "clartag-simplified" : ""
       }`}
       data-stage={stage ?? "admin"}

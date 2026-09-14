@@ -27,7 +27,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Hauptnavigation"
-      className="fixed bottom-0 left-1/2 z-40 w-full max-w-[390px] -translate-x-1/2 border-t border-border bg-card/95 backdrop-blur"
+      className="fixed bottom-0 left-1/2 z-40 w-full max-w-[390px] -translate-x-1/2 border-t border-border bg-card"
     >
       <ul className="flex items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)]">
         {visible.map(({ to, label, icon: Icon }) => {
@@ -36,7 +36,7 @@ export function BottomNav() {
             <li key={to} className="flex-1">
               <Link
                 to={to}
-                className={`flex flex-col items-center gap-1 py-3 text-[11px] transition-colors ${
+                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >

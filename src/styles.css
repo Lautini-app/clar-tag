@@ -14,6 +14,7 @@
   --shadow-sm: 0 1px 2px rgba(26, 39, 68, 0.05);
 
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -44,8 +45,10 @@
 
 :root {
   --radius: 18px;
-  /* Sand */
+  /* Sand — Desktop-Aussenfläche */
   --background: oklch(0.953 0.016 86);
+  /* App-Fläche: helles Warmweiß-Mint #F6F9F6 */
+  --surface: oklch(0.979 0.005 146);
   --foreground: oklch(0.277 0.057 265);
 
   --card: oklch(0.994 0.007 89);
