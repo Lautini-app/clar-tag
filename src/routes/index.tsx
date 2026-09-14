@@ -88,11 +88,12 @@ function Today() {
   }
 
   return (
-    <div className="px-5 pb-10 pt-10">
+    <div className="px-4 pb-8 pt-5">
       <MemberSwitcher />
-      <header className="mb-6">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">Heute</div>
-        <h1 className="mt-1 text-2xl font-semibold text-foreground">{greeting}</h1>
+      <header className="mb-4">
+        <div className="text-[13px] font-medium tracking-[0.02em] text-primary">clar·tag</div>
+        <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-foreground">Mein Tag</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{greeting}</p>
       </header>
 
       <AdminTodayOverview />
@@ -110,33 +111,33 @@ function Today() {
           navigate({ to: "/run/$workflowId", params: { workflowId: next.ref } })
         } />
       ) : views.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] bg-card p-5 text-sm text-muted-foreground">
+        <div className="rounded-[var(--radius-lg)] bg-card px-3.5 py-3 text-sm text-muted-foreground shadow-xs">
           Heute ist nichts geplant. Starte eine Routine, wenn du magst.
         </div>
       ) : null}
 
       {views.length > 0 && (
-        <section className="mt-8">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <section className="mt-5">
+          <div className="mb-1.5 flex items-center justify-between">
+            <h2 className="text-[11px] font-medium text-muted-foreground">
               Heute geplant
             </h2>
-            <Link to="/routinen" className="text-xs text-muted-foreground">
+            <Link to="/routinen" className="text-[11px] text-muted-foreground">
               <Calendar className="inline h-3 w-3" /> Kalender
             </Link>
           </div>
-          <ul className="grid gap-2">
+          <ul className="grid gap-1.5">
             {views.map((s) => (
               <li
                 key={s.id}
-                className={`flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 ${
+                className={`flex items-center gap-2.5 rounded-[var(--radius-lg)] bg-card px-2.5 py-2 shadow-xs ${
                   s.status !== "planned" ? "opacity-50" : ""
                 }`}
               >
-                <div className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
+                <div className="w-11 font-mono text-[11px] tabular-nums text-muted-foreground">
                   {fmtTime(s.scheduled_at)}
                 </div>
-                <span className="text-xl">{s.icon}</span>
+                <span className="text-base leading-none">{s.icon}</span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{s.name}</div>
                   {s.status === "done" && (
@@ -179,13 +180,13 @@ function Today() {
         </section>
       )}
 
-      <section className="mt-8 grid gap-2">
+      <section className="mt-5 grid gap-1.5">
         <Link
           to="/routinen"
-          className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-4 shadow-sm transition active:scale-[0.99]"
+          className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
         >
-          <div className="grid h-10 w-10 place-items-center rounded-[var(--radius-md)] bg-accent text-accent-foreground">
-            <ListChecks className="h-5 w-5" />
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] bg-primary-soft text-primary-deep">
+            <ListChecks className="h-4 w-4" />
           </div>
           <div className="flex-1">
             <div className="font-medium text-foreground">Routine starten</div>
@@ -197,10 +198,10 @@ function Today() {
         {(!toggles || toggles.decide) && (
           <Link
             to="/entscheiden"
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-4 shadow-sm transition active:scale-[0.99]"
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
           >
-            <div className="grid h-10 w-10 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-deep">
-              <Compass className="h-5 w-5" />
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] bg-primary-soft text-primary-deep">
+              <Compass className="h-4 w-4" />
             </div>
             <div className="flex-1">
               <div className="font-medium text-foreground">Entscheiden</div>
@@ -213,14 +214,14 @@ function Today() {
         {(!toggles || toggles.at) && (
           <Link
             to="/ruhe"
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] p-4 transition active:scale-[0.99]"
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] p-3 shadow-sm transition active:scale-[0.99]"
             style={{ backgroundColor: "var(--color-violet-soft)" }}
           >
             <div
-              className="grid h-10 w-10 place-items-center rounded-[var(--radius-md)] text-white"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] text-white"
               style={{ backgroundColor: "var(--color-violet)" }}
             >
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-4 w-4" />
             </div>
             <div className="flex-1">
               <div className="font-medium" style={{ color: "var(--color-violet)" }}>
@@ -246,15 +247,17 @@ function NextRoutineCard({ next, onStart }: { next: ScheduleView; onStart: () =>
   return (
     <button
       onClick={onStart}
-      className="flex w-full items-center gap-4 rounded-[var(--radius-lg)] bg-card p-5 text-left shadow-sm transition active:scale-[0.99]"
+      className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 text-left shadow-sm transition active:scale-[0.99]"
     >
-      <span className="text-3xl">{next.icon}</span>
-      <div className="flex-1">
-        <div className="text-xs uppercase tracking-wide text-muted-foreground">Als nächstes</div>
-        <div className="text-base font-medium text-foreground">{next.name}</div>
-        <div className="text-xs text-muted-foreground">{inLabel}</div>
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-lg leading-none">
+        {next.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[11px] text-muted-foreground">Als nächstes</div>
+        <div className="truncate text-sm font-medium text-foreground">{next.name}</div>
+        <div className="text-[11px] text-muted-foreground">{inLabel}</div>
       </div>
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
         <Play className="h-4 w-4" />
       </div>
     </button>
