@@ -6,11 +6,12 @@
 
 @theme inline {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+  --shadow-sm: 0 1px 2px rgba(26, 39, 68, 0.05);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -42,28 +43,28 @@
 }
 
 :root {
-  --radius: 12px;
+  --radius: 18px;
   /* Sand */
-  --background: oklch(0.965 0.012 80);
-  --foreground: oklch(0.22 0.02 80);
+  --background: oklch(0.953 0.016 86);
+  --foreground: oklch(0.277 0.057 265);
 
-  --card: oklch(0.99 0.006 80);
-  --card-foreground: oklch(0.22 0.02 80);
-  --popover: oklch(0.99 0.006 80);
-  --popover-foreground: oklch(0.22 0.02 80);
+  --card: oklch(0.994 0.007 89);
+  --card-foreground: oklch(0.277 0.057 265);
+  --popover: oklch(0.994 0.007 89);
+  --popover-foreground: oklch(0.277 0.057 265);
 
-  /* Green primary #3B6D11 / #639922 / #EAF3DE */
-  --primary: oklch(0.49 0.13 135);
-  --primary-foreground: oklch(0.985 0.005 80);
-  --primary-deep: oklch(0.41 0.12 138);
-  --primary-soft: oklch(0.95 0.04 125);
+  /* Green primary #4E8B62 / #2F6A45 / #E6F3EA */
+  --primary: oklch(0.584 0.09 153);
+  --primary-foreground: oklch(0.984 0.006 154);
+  --primary-deep: oklch(0.474 0.086 154);
+  --primary-soft: oklch(0.952 0.018 156);
 
-  --secondary: oklch(0.92 0.015 80);
-  --secondary-foreground: oklch(0.25 0.02 80);
-  --muted: oklch(0.93 0.012 80);
-  --muted-foreground: oklch(0.5 0.02 80);
-  --accent: oklch(0.95 0.04 125);
-  --accent-foreground: oklch(0.3 0.08 135);
+  --secondary: oklch(0.927 0.018 81);
+  --secondary-foreground: oklch(0.277 0.057 265);
+  --muted: oklch(0.933 0.018 81);
+  --muted-foreground: oklch(0.522 0.033 252);
+  --accent: oklch(0.952 0.018 156);
+  --accent-foreground: oklch(0.474 0.086 154);
 
   /* Violet #534AB7 / #EEEDFE */
   --violet: oklch(0.5 0.16 285);
@@ -78,9 +79,9 @@
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.985 0.005 80);
 
-  --border: oklch(0.88 0.015 80);
-  --input: oklch(0.88 0.015 80);
-  --ring: oklch(0.49 0.13 135);
+  --border: oklch(0.889 0.02 77);
+  --input: oklch(0.889 0.02 77);
+  --ring: oklch(0.584 0.09 153);
 }
 
 @layer base {
