@@ -36,12 +36,12 @@ export function BottomNav() {
             <li key={to} className="flex-1">
               <Link
                 to={to}
-                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] transition-colors ${
+                className={`flex flex-col items-center gap-1 py-2.5 text-xs leading-none tracking-normal ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 1.8} />
-                <span className={active ? "font-medium" : ""}>{label}</span>
+                <span className={active ? "font-medium" : "font-normal"}>{label}</span>
               </Link>
             </li>
           );

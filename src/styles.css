@@ -11,7 +11,8 @@
   --radius-lg: 18px;
   --radius-xl: 24px;
   --radius-2xl: 28px;
-  --shadow-sm: 0 1px 2px rgba(26, 39, 68, 0.05);
+  --shadow-xs: 0 1px 3px rgba(26, 39, 68, 0.04);
+  --shadow-sm: 0 4px 14px rgba(26, 39, 68, 0.055);
 
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -48,7 +49,7 @@
   /* Sand — Desktop-Aussenfläche */
   --background: oklch(0.953 0.016 86);
   /* App-Fläche: helles Warmweiß-Mint #F6F9F6 */
-  --surface: oklch(0.979 0.005 146);
+  --surface: oklch(0.978 0.01 150);
   --foreground: oklch(0.277 0.057 265);
 
   --card: oklch(0.994 0.007 89);
@@ -60,13 +61,13 @@
   --primary: oklch(0.584 0.09 153);
   --primary-foreground: oklch(0.984 0.006 154);
   --primary-deep: oklch(0.474 0.086 154);
-  --primary-soft: oklch(0.952 0.018 156);
+  --primary-soft: oklch(0.94 0.032 155);
 
   --secondary: oklch(0.927 0.018 81);
   --secondary-foreground: oklch(0.277 0.057 265);
   --muted: oklch(0.933 0.018 81);
   --muted-foreground: oklch(0.522 0.033 252);
-  --accent: oklch(0.952 0.018 156);
+  --accent: oklch(0.94 0.032 155);
   --accent-foreground: oklch(0.474 0.086 154);
 
   /* Violet #534AB7 / #EEEDFE */

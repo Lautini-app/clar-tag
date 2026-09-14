@@ -91,7 +91,7 @@ function Today() {
     <div className="px-4 pb-8 pt-5">
       <MemberSwitcher />
       <header className="mb-4">
-        <div className="text-[11px] font-medium text-primary">clar·tag</div>
+        <div className="text-[13px] font-medium tracking-[0.02em] text-primary">clar·tag</div>
         <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-foreground">Mein Tag</h1>
         <p className="mt-1 text-sm text-muted-foreground">{greeting}</p>
       </header>
@@ -111,7 +111,7 @@ function Today() {
           navigate({ to: "/run/$workflowId", params: { workflowId: next.ref } })
         } />
       ) : views.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-border bg-card px-3.5 py-3 text-sm text-muted-foreground shadow-sm">
+        <div className="rounded-[var(--radius-lg)] bg-card px-3.5 py-3 text-sm text-muted-foreground shadow-xs">
           Heute ist nichts geplant. Starte eine Routine, wenn du magst.
         </div>
       ) : null}
@@ -130,7 +130,7 @@ function Today() {
             {views.map((s) => (
               <li
                 key={s.id}
-                className={`flex items-center gap-2.5 rounded-[var(--radius-lg)] border border-border bg-card px-2.5 py-2 shadow-sm ${
+                className={`flex items-center gap-2.5 rounded-[var(--radius-lg)] bg-card px-2.5 py-2 shadow-xs ${
                   s.status !== "planned" ? "opacity-50" : ""
                 }`}
               >
@@ -183,9 +183,9 @@ function Today() {
       <section className="mt-5 grid gap-1.5">
         <Link
           to="/routinen"
-          className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 shadow-sm transition active:scale-[0.99]"
+          className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
         >
-          <div className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-deep">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] bg-primary-soft text-primary-deep">
             <ListChecks className="h-4 w-4" />
           </div>
           <div className="flex-1">
@@ -198,9 +198,9 @@ function Today() {
         {(!toggles || toggles.decide) && (
           <Link
             to="/entscheiden"
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 shadow-sm transition active:scale-[0.99]"
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
           >
-            <div className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-deep">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] bg-primary-soft text-primary-deep">
               <Compass className="h-4 w-4" />
             </div>
             <div className="flex-1">
@@ -214,11 +214,11 @@ function Today() {
         {(!toggles || toggles.at) && (
           <Link
             to="/ruhe"
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border p-3 shadow-sm transition active:scale-[0.99]"
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] p-3 shadow-sm transition active:scale-[0.99]"
             style={{ backgroundColor: "var(--color-violet-soft)" }}
           >
             <div
-              className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] text-white"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] text-white"
               style={{ backgroundColor: "var(--color-violet)" }}
             >
               <Sparkles className="h-4 w-4" />
@@ -247,7 +247,7 @@ function NextRoutineCard({ next, onStart }: { next: ScheduleView; onStart: () =>
   return (
     <button
       onClick={onStart}
-      className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 text-left shadow-sm transition active:scale-[0.99]"
+      className="flex w-full items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3 text-left shadow-sm transition active:scale-[0.99]"
     >
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-lg leading-none">
         {next.icon}
