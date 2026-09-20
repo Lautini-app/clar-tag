@@ -133,3 +133,28 @@
   gap: 12px;
   width: 100%;
 }
+
+/* ---------------------------------------------------------------------------
+   Wortmarke mit den vier Markenpunkten (ClarBrand.tsx).
+   Bewusst nur diese Regeln aus dem Design-Zweig uebernommen - der uebrige
+   Umbau von clar-tag bleibt zurueckgestellt, solange die Vercel-Vorschau
+   mangels SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY nicht pruefbar ist.
+   --clar-app faerbt den Trennpunkt und ist tags Akzentfarbe.
+--------------------------------------------------------------------------- */
+:root { --clar-app: #2F9A68; }
+
+.clar-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.7rem;
+  max-width: 100%;
+  color: var(--foreground);
+  vertical-align: middle;
+}
+.clar-brand-main { display: inline-flex; align-items: center; gap: 0.5rem; }
+.clar-wordmark { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.055em; line-height: 1.15; white-space: nowrap; }
+.clar-brand-separator { color: var(--clar-app); }
+.clar-brand-dots { width: 19px; height: 19px; flex: 0 0 19px; }
+.clar-brand-byline { font-size: 0.75rem; font-weight: 400; color: var(--muted-foreground); letter-spacing: 0; line-height: 1.4; white-space: nowrap; }
+.clar-brand-header { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }

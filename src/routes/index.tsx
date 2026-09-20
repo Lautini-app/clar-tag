@@ -1,3 +1,4 @@
+import { ClarBrand } from "@/components/ClarBrand";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -89,6 +90,7 @@ function Today() {
 
   return (
     <div className="px-5 pb-10 pt-10">
+      <div className="clar-brand-header"><ClarBrand app="tag" /></div>
       <MemberSwitcher />
       <header className="mb-6">
         <div className="text-xs uppercase tracking-widest text-muted-foreground">Heute</div>
