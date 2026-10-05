@@ -13,6 +13,7 @@ import { markTodayScheduleDone } from "@/lib/schedules.functions";
 import { useFamily } from "@/hooks/use-family";
 import { setStatus, clearStatus } from "@/lib/member-status";
 import { Sym } from "@/components/Sym";
+import { AbschlussPunkte } from "@/components/AbschlussPunkte";
 
 export const Route = createFileRoute("/run/$workflowId")({
   component: Runner,
@@ -186,7 +187,7 @@ function Runner() {
     return (
       <div className="grid min-h-screen place-items-center px-6 text-center">
         <div>
-          <div className="text-6xl"><Sym e="🎉" /></div>
+          <AbschlussPunkte />
           <h1 className="mt-4 text-3xl font-semibold text-foreground">Geschafft!</h1>
           <p className="mt-2 text-sm text-muted-foreground">{workflow.name}</p>
           <div className="mt-8 flex flex-col gap-2">
