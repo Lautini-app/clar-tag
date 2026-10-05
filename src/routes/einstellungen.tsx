@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Copy, Plus, RefreshCw } from "lucide-react";
@@ -189,7 +189,16 @@ function Einstellungen() {
 
       <DeleteAccountDialog open={deleteOpen} onClose={() => setDeleteOpen(false)} />
 
-      <p className="mt-8 text-center text-xs text-muted-foreground">
+      <div className="mt-8 text-center">
+        <Link
+          to="/hilfe"
+          className="inline-flex min-h-9 items-center rounded-full border border-border bg-card px-3.5 text-[13px] font-medium text-foreground"
+        >
+          Hilfe &amp; Anleitung
+        </Link>
+      </div>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
         clar · tag — Teil der clar App-Familie von Lautini
       </p>
 

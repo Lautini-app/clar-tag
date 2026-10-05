@@ -9,50 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerbindenRouteImport } from './routes/verbinden'
-import { Route as StatistikenRouteImport } from './routes/statistiken'
-import { Route as RuheRouteImport } from './routes/ruhe'
-import { Route as RoutinenRouteImport } from './routes/routinen'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as EntscheidenRouteImport } from './routes/entscheiden'
-import { Route as EinstellungenRouteImport } from './routes/einstellungen'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RunWorkflowIdRouteImport } from './routes/run.$workflowId'
-import { Route as RuheExerciseIdRouteImport } from './routes/ruhe.$exerciseId'
-import { Route as RoutinenNeuRouteImport } from './routes/routinen.neu'
-import { Route as RoutinenWorkflowIdRouteImport } from './routes/routinen.$workflowId'
+import { Route as EinstellungenRouteImport } from './routes/einstellungen'
+import { Route as EntscheidenRouteImport } from './routes/entscheiden'
+import { Route as HilfeRouteImport } from './routes/hilfe'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RoutinenRouteImport } from './routes/routinen'
+import { Route as RuheRouteImport } from './routes/ruhe'
+import { Route as StatistikenRouteImport } from './routes/statistiken'
+import { Route as VerbindenRouteImport } from './routes/verbinden'
 import { Route as EntscheidenHelperIdRouteImport } from './routes/entscheiden.$helperId'
-import { Route as RoutinenBibliothekSlugRouteImport } from './routes/routinen.bibliothek.$slug'
+import { Route as RoutinenWorkflowIdRouteImport } from './routes/routinen.$workflowId'
+import { Route as RoutinenNeuRouteImport } from './routes/routinen.neu'
+import { Route as RuheExerciseIdRouteImport } from './routes/ruhe.$exerciseId'
+import { Route as RunWorkflowIdRouteImport } from './routes/run.$workflowId'
+import { Route as ApiCalendarTokenRouteImport } from './routes/api/calendar/$token'
 import { Route as RoutinenWorkflowIdBearbeitenRouteImport } from './routes/routinen.$workflowId.bearbeiten'
+import { Route as RoutinenBibliothekSlugRouteImport } from './routes/routinen.bibliothek.$slug'
 
-const VerbindenRoute = VerbindenRouteImport.update({
-  id: '/verbinden',
-  path: '/verbinden',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatistikenRoute = StatistikenRouteImport.update({
-  id: '/statistiken',
-  path: '/statistiken',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RuheRoute = RuheRouteImport.update({
-  id: '/ruhe',
-  path: '/ruhe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoutinenRoute = RoutinenRouteImport.update({
-  id: '/routinen',
-  path: '/routinen',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EntscheidenRoute = EntscheidenRouteImport.update({
-  id: '/entscheiden',
-  path: '/entscheiden',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EinstellungenRoute = EinstellungenRouteImport.update({
@@ -60,40 +37,70 @@ const EinstellungenRoute = EinstellungenRouteImport.update({
   path: '/einstellungen',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const EntscheidenRoute = EntscheidenRouteImport.update({
+  id: '/entscheiden',
+  path: '/entscheiden',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RunWorkflowIdRoute = RunWorkflowIdRouteImport.update({
-  id: '/run/$workflowId',
-  path: '/run/$workflowId',
+const HilfeRoute = HilfeRouteImport.update({
+  id: '/hilfe',
+  path: '/hilfe',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RuheExerciseIdRoute = RuheExerciseIdRouteImport.update({
-  id: '/$exerciseId',
-  path: '/$exerciseId',
-  getParentRoute: () => RuheRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const RoutinenNeuRoute = RoutinenNeuRouteImport.update({
-  id: '/neu',
-  path: '/neu',
-  getParentRoute: () => RoutinenRoute,
+const RoutinenRoute = RoutinenRouteImport.update({
+  id: '/routinen',
+  path: '/routinen',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const RoutinenWorkflowIdRoute = RoutinenWorkflowIdRouteImport.update({
-  id: '/$workflowId',
-  path: '/$workflowId',
-  getParentRoute: () => RoutinenRoute,
+const RuheRoute = RuheRouteImport.update({
+  id: '/ruhe',
+  path: '/ruhe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatistikenRoute = StatistikenRouteImport.update({
+  id: '/statistiken',
+  path: '/statistiken',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerbindenRoute = VerbindenRouteImport.update({
+  id: '/verbinden',
+  path: '/verbinden',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EntscheidenHelperIdRoute = EntscheidenHelperIdRouteImport.update({
   id: '/$helperId',
   path: '/$helperId',
   getParentRoute: () => EntscheidenRoute,
 } as any)
-const RoutinenBibliothekSlugRoute = RoutinenBibliothekSlugRouteImport.update({
-  id: '/bibliothek/$slug',
-  path: '/bibliothek/$slug',
+const RoutinenWorkflowIdRoute = RoutinenWorkflowIdRouteImport.update({
+  id: '/$workflowId',
+  path: '/$workflowId',
   getParentRoute: () => RoutinenRoute,
+} as any)
+const RoutinenNeuRoute = RoutinenNeuRouteImport.update({
+  id: '/neu',
+  path: '/neu',
+  getParentRoute: () => RoutinenRoute,
+} as any)
+const RuheExerciseIdRoute = RuheExerciseIdRouteImport.update({
+  id: '/$exerciseId',
+  path: '/$exerciseId',
+  getParentRoute: () => RuheRoute,
+} as any)
+const RunWorkflowIdRoute = RunWorkflowIdRouteImport.update({
+  id: '/run/$workflowId',
+  path: '/run/$workflowId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCalendarTokenRoute = ApiCalendarTokenRouteImport.update({
+  id: '/api/calendar/$token',
+  path: '/api/calendar/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RoutinenWorkflowIdBearbeitenRoute =
   RoutinenWorkflowIdBearbeitenRouteImport.update({
@@ -101,11 +108,17 @@ const RoutinenWorkflowIdBearbeitenRoute =
     path: '/bearbeiten',
     getParentRoute: () => RoutinenWorkflowIdRoute,
   } as any)
+const RoutinenBibliothekSlugRoute = RoutinenBibliothekSlugRouteImport.update({
+  id: '/bibliothek/$slug',
+  path: '/bibliothek/$slug',
+  getParentRoute: () => RoutinenRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
+  '/hilfe': typeof HilfeRoute
   '/login': typeof LoginRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
@@ -116,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/routinen/neu': typeof RoutinenNeuRoute
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
+  '/api/calendar/$token': typeof ApiCalendarTokenRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
   '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
@@ -123,6 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
+  '/hilfe': typeof HilfeRoute
   '/login': typeof LoginRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
@@ -133,6 +148,7 @@ export interface FileRoutesByTo {
   '/routinen/neu': typeof RoutinenNeuRoute
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
+  '/api/calendar/$token': typeof ApiCalendarTokenRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
   '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
@@ -141,6 +157,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/einstellungen': typeof EinstellungenRoute
   '/entscheiden': typeof EntscheidenRouteWithChildren
+  '/hilfe': typeof HilfeRoute
   '/login': typeof LoginRoute
   '/routinen': typeof RoutinenRouteWithChildren
   '/ruhe': typeof RuheRouteWithChildren
@@ -151,6 +168,7 @@ export interface FileRoutesById {
   '/routinen/neu': typeof RoutinenNeuRoute
   '/ruhe/$exerciseId': typeof RuheExerciseIdRoute
   '/run/$workflowId': typeof RunWorkflowIdRoute
+  '/api/calendar/$token': typeof ApiCalendarTokenRoute
   '/routinen/$workflowId/bearbeiten': typeof RoutinenWorkflowIdBearbeitenRoute
   '/routinen/bibliothek/$slug': typeof RoutinenBibliothekSlugRoute
 }
@@ -160,6 +178,7 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
+    | '/hilfe'
     | '/login'
     | '/routinen'
     | '/ruhe'
@@ -170,6 +189,7 @@ export interface FileRouteTypes {
     | '/routinen/neu'
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
+    | '/api/calendar/$token'
     | '/routinen/$workflowId/bearbeiten'
     | '/routinen/bibliothek/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -177,6 +197,7 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
+    | '/hilfe'
     | '/login'
     | '/routinen'
     | '/ruhe'
@@ -187,6 +208,7 @@ export interface FileRouteTypes {
     | '/routinen/neu'
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
+    | '/api/calendar/$token'
     | '/routinen/$workflowId/bearbeiten'
     | '/routinen/bibliothek/$slug'
   id:
@@ -194,6 +216,7 @@ export interface FileRouteTypes {
     | '/'
     | '/einstellungen'
     | '/entscheiden'
+    | '/hilfe'
     | '/login'
     | '/routinen'
     | '/ruhe'
@@ -204,6 +227,7 @@ export interface FileRouteTypes {
     | '/routinen/neu'
     | '/ruhe/$exerciseId'
     | '/run/$workflowId'
+    | '/api/calendar/$token'
     | '/routinen/$workflowId/bearbeiten'
     | '/routinen/bibliothek/$slug'
   fileRoutesById: FileRoutesById
@@ -212,56 +236,23 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EinstellungenRoute: typeof EinstellungenRoute
   EntscheidenRoute: typeof EntscheidenRouteWithChildren
+  HilfeRoute: typeof HilfeRoute
   LoginRoute: typeof LoginRoute
   RoutinenRoute: typeof RoutinenRouteWithChildren
   RuheRoute: typeof RuheRouteWithChildren
   StatistikenRoute: typeof StatistikenRoute
   VerbindenRoute: typeof VerbindenRoute
   RunWorkflowIdRoute: typeof RunWorkflowIdRoute
+  ApiCalendarTokenRoute: typeof ApiCalendarTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verbinden': {
-      id: '/verbinden'
-      path: '/verbinden'
-      fullPath: '/verbinden'
-      preLoaderRoute: typeof VerbindenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/statistiken': {
-      id: '/statistiken'
-      path: '/statistiken'
-      fullPath: '/statistiken'
-      preLoaderRoute: typeof StatistikenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ruhe': {
-      id: '/ruhe'
-      path: '/ruhe'
-      fullPath: '/ruhe'
-      preLoaderRoute: typeof RuheRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/routinen': {
-      id: '/routinen'
-      path: '/routinen'
-      fullPath: '/routinen'
-      preLoaderRoute: typeof RoutinenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/entscheiden': {
-      id: '/entscheiden'
-      path: '/entscheiden'
-      fullPath: '/entscheiden'
-      preLoaderRoute: typeof EntscheidenRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/einstellungen': {
@@ -271,40 +262,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/entscheiden': {
+      id: '/entscheiden'
+      path: '/entscheiden'
+      fullPath: '/entscheiden'
+      preLoaderRoute: typeof EntscheidenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/run/$workflowId': {
-      id: '/run/$workflowId'
-      path: '/run/$workflowId'
-      fullPath: '/run/$workflowId'
-      preLoaderRoute: typeof RunWorkflowIdRouteImport
+    '/hilfe': {
+      id: '/hilfe'
+      path: '/hilfe'
+      fullPath: '/hilfe'
+      preLoaderRoute: typeof HilfeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ruhe/$exerciseId': {
-      id: '/ruhe/$exerciseId'
-      path: '/$exerciseId'
-      fullPath: '/ruhe/$exerciseId'
-      preLoaderRoute: typeof RuheExerciseIdRouteImport
-      parentRoute: typeof RuheRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/routinen/neu': {
-      id: '/routinen/neu'
-      path: '/neu'
-      fullPath: '/routinen/neu'
-      preLoaderRoute: typeof RoutinenNeuRouteImport
-      parentRoute: typeof RoutinenRoute
+    '/routinen': {
+      id: '/routinen'
+      path: '/routinen'
+      fullPath: '/routinen'
+      preLoaderRoute: typeof RoutinenRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/routinen/$workflowId': {
-      id: '/routinen/$workflowId'
-      path: '/$workflowId'
-      fullPath: '/routinen/$workflowId'
-      preLoaderRoute: typeof RoutinenWorkflowIdRouteImport
-      parentRoute: typeof RoutinenRoute
+    '/ruhe': {
+      id: '/ruhe'
+      path: '/ruhe'
+      fullPath: '/ruhe'
+      preLoaderRoute: typeof RuheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/statistiken': {
+      id: '/statistiken'
+      path: '/statistiken'
+      fullPath: '/statistiken'
+      preLoaderRoute: typeof StatistikenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verbinden': {
+      id: '/verbinden'
+      path: '/verbinden'
+      fullPath: '/verbinden'
+      preLoaderRoute: typeof VerbindenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/entscheiden/$helperId': {
       id: '/entscheiden/$helperId'
@@ -313,12 +318,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntscheidenHelperIdRouteImport
       parentRoute: typeof EntscheidenRoute
     }
-    '/routinen/bibliothek/$slug': {
-      id: '/routinen/bibliothek/$slug'
-      path: '/bibliothek/$slug'
-      fullPath: '/routinen/bibliothek/$slug'
-      preLoaderRoute: typeof RoutinenBibliothekSlugRouteImport
+    '/routinen/$workflowId': {
+      id: '/routinen/$workflowId'
+      path: '/$workflowId'
+      fullPath: '/routinen/$workflowId'
+      preLoaderRoute: typeof RoutinenWorkflowIdRouteImport
       parentRoute: typeof RoutinenRoute
+    }
+    '/routinen/neu': {
+      id: '/routinen/neu'
+      path: '/neu'
+      fullPath: '/routinen/neu'
+      preLoaderRoute: typeof RoutinenNeuRouteImport
+      parentRoute: typeof RoutinenRoute
+    }
+    '/ruhe/$exerciseId': {
+      id: '/ruhe/$exerciseId'
+      path: '/$exerciseId'
+      fullPath: '/ruhe/$exerciseId'
+      preLoaderRoute: typeof RuheExerciseIdRouteImport
+      parentRoute: typeof RuheRoute
+    }
+    '/run/$workflowId': {
+      id: '/run/$workflowId'
+      path: '/run/$workflowId'
+      fullPath: '/run/$workflowId'
+      preLoaderRoute: typeof RunWorkflowIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/calendar/$token': {
+      id: '/api/calendar/$token'
+      path: '/api/calendar/$token'
+      fullPath: '/api/calendar/$token'
+      preLoaderRoute: typeof ApiCalendarTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/routinen/$workflowId/bearbeiten': {
       id: '/routinen/$workflowId/bearbeiten'
@@ -326,6 +359,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/routinen/$workflowId/bearbeiten'
       preLoaderRoute: typeof RoutinenWorkflowIdBearbeitenRouteImport
       parentRoute: typeof RoutinenWorkflowIdRoute
+    }
+    '/routinen/bibliothek/$slug': {
+      id: '/routinen/bibliothek/$slug'
+      path: '/bibliothek/$slug'
+      fullPath: '/routinen/bibliothek/$slug'
+      preLoaderRoute: typeof RoutinenBibliothekSlugRouteImport
+      parentRoute: typeof RoutinenRoute
     }
   }
 }
@@ -383,12 +423,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EinstellungenRoute: EinstellungenRoute,
   EntscheidenRoute: EntscheidenRouteWithChildren,
+  HilfeRoute: HilfeRoute,
   LoginRoute: LoginRoute,
   RoutinenRoute: RoutinenRouteWithChildren,
   RuheRoute: RuheRouteWithChildren,
   StatistikenRoute: StatistikenRoute,
   VerbindenRoute: VerbindenRoute,
   RunWorkflowIdRoute: RunWorkflowIdRoute,
+  ApiCalendarTokenRoute: ApiCalendarTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
