@@ -3,7 +3,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { BookOpen, ChevronRight, Plus, Repeat, Trash2 } from "lucide-react";
-import { categoryMeta, workflowsByCategory, type Category } from "@/lib/workflows";
+import { categoryMeta, workflows } from "@/lib/workflows";
+import {
+  benutzteSchluessel,
+  grundRoutinen,
+  meineListe,
+  type MeineZeile,
+} from "@/lib/meine-routinen";
+import { listCompletions } from "@/lib/completions.functions";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { listLibraryRoutines, type LibraryRoutine } from "@/lib/library.functions";
 import { ImportRoutineButton } from "@/components/ImportRoutineDialog";
@@ -17,32 +24,9 @@ export const Route = createFileRoute("/routinen")({
   component: Routinen,
 });
 
-type ListItem = {
-  id: string;
-  name: string;
-  icon: string;
-  isUser: boolean;
-};
-
 function Routinen() {
   const location = useLocation();
   const [tab, setTab] = useState<"meine" | "bibliothek" | "kalender">("meine");
-  const byCat = workflowsByCategory();
-  const order: Category[] = [
-    "morgen",
-    "abend",
-    "vorbereitung",
-    "lernen",
-    "gesundheit",
-    "soziales",
-    "reisen",
-    "uebergang",
-    "pflichten",
-    "saisonal",
-    "hobby_outdoor",
-    "eigene",
-  ];
-
   const fetchUserWorkflows = useServerFn(listUserWorkflows);
   const { user } = useAuth();
   const { data: userWorkflows = [] } = useQuery({
@@ -51,35 +35,48 @@ function Routinen() {
     enabled: !!user,
   });
 
+  // Was ist in Gebrauch? Wiederholungen, Termine der nächsten 14 Tage und
+  // Durchgänge der letzten 30 Tage. Schlägt eine Abfrage fehl, fehlt nur
+  // diese Quelle — die Routine steht dann weiterhin in der Bibliothek.
+  const fetchRecurrences = useServerFn(listRecurrences);
+  const fetchSchedules = useServerFn(listSchedules);
+  const fetchCompletions = useServerFn(listCompletions);
+  const zeitraum = useMemo(() => {
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
+    const tage = (n: number) => {
+      const d = new Date(heute);
+      d.setDate(d.getDate() + n);
+      return d.toISOString();
+    };
+    return { heute: tage(0), in14: tage(14), vor30: tage(-30), morgen: tage(1) };
+  }, []);
+  const { data: recurrences } = useQuery({
+    queryKey: ["recurrences"],
+    queryFn: () => fetchRecurrences({}),
+    enabled: !!user,
+  });
+  const { data: geplant } = useQuery({
+    queryKey: ["schedules", "naechste14", zeitraum.heute],
+    queryFn: () => fetchSchedules({ data: { from: zeitraum.heute, to: zeitraum.in14 } }),
+    enabled: !!user,
+  });
+  const { data: gemacht } = useQuery({
+    queryKey: ["completions", "letzte30", zeitraum.vor30],
+    queryFn: () => fetchCompletions({ data: { from: zeitraum.vor30, to: zeitraum.morgen } }),
+    enabled: !!user,
+  });
+
   if (location.pathname !== "/routinen") {
     return <Outlet />;
   }
 
-  const combined: Record<Category, ListItem[]> = {
-    morgen: [],
-    abend: [],
-    vorbereitung: [],
-    lernen: [],
-    gesundheit: [],
-    soziales: [],
-    reisen: [],
-    uebergang: [],
-    pflichten: [],
-    saisonal: [],
-    hobby_outdoor: [],
-    eigene: [],
-  };
-  for (const c of order) {
-    combined[c] = byCat[c].map((w) => ({ id: w.id, name: w.name, icon: w.icon, isUser: false }));
-  }
-  for (const w of userWorkflows) {
-    combined[w.category].push({
-      id: w.id,
-      name: w.name,
-      icon: w.icon || "✏️",
-      isUser: true,
-    });
-  }
+  // «Meine Routinen»: eigene plus mitgelieferte, die in Gebrauch sind.
+  const rubriken = meineListe(
+    workflows,
+    userWorkflows,
+    benutzteSchluessel(recurrences, geplant, gemacht),
+  );
 
   return (
     <div className="px-5 pb-10 pt-10">
@@ -120,51 +117,43 @@ function Routinen() {
       </div>
 
       {tab === "meine" ? (
-        <div className="space-y-4">
-          {order.map((cat) => {
-            const meta = categoryMeta[cat];
-            const items = combined[cat];
-            return (
-              <section key={cat}>
-                <h2 className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  <span className="text-base">{meta.icon}</span>
-                  {meta.label}
-                  <span className="text-[10px] text-muted-foreground/70">({items.length})</span>
-                </h2>
-                {items.length === 0 ? (
-                  <p className="rounded-[var(--radius-md)] bg-card px-4 py-3 text-sm text-muted-foreground">
-                    Noch keine Routinen.
-                  </p>
-                ) : (
-                  <ul className="grid gap-1 rounded-[var(--radius-lg)] bg-card p-2">
-                    {items.map((w) => (
-                      <li key={w.id}>
-                        <Link
-                          to="/routinen/$workflowId"
-                          params={{ workflowId: w.id }}
-                          className="flex items-center gap-3 rounded-[var(--radius-md)] px-2 py-2 transition active:scale-[0.99]"
-                        >
-                          <span className="text-xl">{w.icon}</span>
-                          <span className="flex-1 text-sm font-medium text-foreground">
-                            {w.name}
-                          </span>
-                          {w.isUser && (
-                            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                              eigene
-                            </span>
-                          )}
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            );
-          })}
-        </div>
+        rubriken.length === 0 ? (
+          <div className="rounded-[var(--radius-lg)] bg-card p-6 text-sm text-muted-foreground">
+            <p>
+              Hier stehen deine eigenen Routinen und alle, die du eingeplant oder kürzlich gemacht
+              hast.
+            </p>
+            <button
+              type="button"
+              onClick={() => setTab("bibliothek")}
+              className="mt-4 inline-flex min-h-9 items-center rounded-full border border-border bg-background px-3.5 text-[13px] font-medium text-foreground"
+            >
+              Zur Bibliothek
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {rubriken.map(({ cat, items }) => (
+              <RubrikListe key={cat} cat={cat} items={items} />
+            ))}
+            <button
+              type="button"
+              onClick={() => setTab("bibliothek")}
+              className="px-1 text-sm text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Weitere Vorlagen in der Bibliothek
+            </button>
+          </div>
+        )
       ) : tab === "bibliothek" ? (
-        <LibraryList />
+        <div className="space-y-5">
+          <div className="space-y-4">
+            {grundRoutinen(workflows).map(({ cat, items }) => (
+              <RubrikListe key={cat} cat={cat} items={items} />
+            ))}
+          </div>
+          <LibraryList />
+        </div>
       ) : (
         <CalendarView />
       )}
@@ -175,6 +164,40 @@ function Routinen() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Bibliothek — Karten, gruppiert nach Kategorie
 // ─────────────────────────────────────────────────────────────────────────────
+
+/** Eine Rubrik mit ihren Routinen — für «Meine Routinen» und die Bibliothek. */
+function RubrikListe({ cat, items }: { cat: keyof typeof categoryMeta; items: MeineZeile[] }) {
+  const meta = categoryMeta[cat];
+  return (
+    <section>
+      <h2 className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="text-base">{meta.icon}</span>
+        {meta.label}
+        <span className="text-[10px] text-muted-foreground/70">({items.length})</span>
+      </h2>
+      <ul className="grid gap-1 rounded-[var(--radius-lg)] bg-card p-2">
+        {items.map((w) => (
+          <li key={w.id}>
+            <Link
+              to="/routinen/$workflowId"
+              params={{ workflowId: w.id }}
+              className="flex items-center gap-3 rounded-[var(--radius-md)] px-2 py-2 transition active:scale-[0.99]"
+            >
+              <span className="text-xl">{w.icon}</span>
+              <span className="flex-1 text-sm font-medium text-foreground">{w.name}</span>
+              {w.isUser && (
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  eigene
+                </span>
+              )}
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 const LIBRARY_CATEGORY_ORDER: string[] = [
   "gesundheit",
@@ -200,7 +223,11 @@ function gradeLabel(g: LibraryRoutine["default_grade"]): string {
 function LibraryList() {
   const { user } = useAuth();
   const fetchLibrary = useServerFn(listLibraryRoutines);
-  const { data: routines = [], isLoading, error } = useQuery({
+  const {
+    data: routines = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["library-routines"],
     queryFn: () => fetchLibrary(),
     enabled: !!user,
@@ -208,7 +235,11 @@ function LibraryList() {
   });
 
   if (isLoading) {
-    return <p className="rounded-[var(--radius-lg)] bg-card p-6 text-sm text-muted-foreground">Bibliothek wird geladen …</p>;
+    return (
+      <p className="rounded-[var(--radius-lg)] bg-card p-6 text-sm text-muted-foreground">
+        Bibliothek wird geladen …
+      </p>
+    );
   }
   if (error) {
     return (
@@ -335,23 +366,25 @@ function CalendarView() {
         Wiederholungen
       </h2>
       <ul className="grid gap-2">
-        {recurrences.filter((r) => r.recurrence_type !== "once").map((r) => (
-          <li
-            key={r.id}
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
-          >
-            <div className="flex-1 text-sm text-foreground">
-              {formatRecurrenceSummary(r, r.workflow_key ?? "Routine")}
-            </div>
-            <button
-              onClick={() => onDeleteRecurrence(r.id)}
-              className="rounded-md p-1 text-muted-foreground hover:text-destructive"
-              aria-label="Wiederholung löschen"
+        {recurrences
+          .filter((r) => r.recurrence_type !== "once")
+          .map((r) => (
+            <li
+              key={r.id}
+              className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
             >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </li>
-        ))}
+              <div className="flex-1 text-sm text-foreground">
+                {formatRecurrenceSummary(r, r.workflow_key ?? "Routine")}
+              </div>
+              <button
+                onClick={() => onDeleteRecurrence(r.id)}
+                className="rounded-md p-1 text-muted-foreground hover:text-destructive"
+                aria-label="Wiederholung löschen"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
       </ul>
     </section>
   );
