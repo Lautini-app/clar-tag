@@ -10,6 +10,8 @@ import {
 } from "@/lib/decisions";
 import { fetchWeather, type WeatherSnapshot } from "@/lib/weather";
 import { KEYS, lsGet, lsSet } from "@/lib/storage";
+import { Sym } from "@/components/Sym";
+import { zeigtBild } from "@/lib/symbole";
 
 export const Route = createFileRoute("/entscheiden/$helperId")({
   component: Session,
@@ -96,7 +98,7 @@ function Session() {
 
       <header className="mb-6">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{helper.icon}</span>
+          <span className="text-2xl"><Sym e={helper.icon} /></span>
           <h1 className="text-lg font-semibold text-foreground">{helper.name}</h1>
         </div>
         {phase === "ask" && (
@@ -123,7 +125,7 @@ function Session() {
                 onClick={() => choose(o.id)}
                 className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-4 text-left transition hover:border-primary active:scale-[0.99]"
               >
-                {o.emoji && <span className="text-2xl">{o.emoji}</span>}
+                {zeigtBild(o.emoji) && <span className="text-2xl"><Sym e={o.emoji} /></span>}
                 <span className="flex-1 text-base font-medium text-foreground">{o.label}</span>
               </button>
             ))}

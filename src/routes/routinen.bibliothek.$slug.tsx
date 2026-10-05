@@ -13,6 +13,7 @@ import {
   type LibraryRoutine,
   type LibraryStep,
 } from "@/lib/library.functions";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/routinen/bibliothek/$slug")({
   component: LibraryDetail,
@@ -101,13 +102,13 @@ function LibraryDetail() {
 
       <header className="mb-4 flex items-start gap-3">
         <div className="grid h-14 w-14 place-items-center rounded-[var(--radius-lg)] bg-accent text-3xl">
-          {routine.icon}
+          <Sym e={routine.icon} />
         </div>
         <div className="flex-1">
           <h1 className="text-2xl font-semibold text-foreground">{routine.name}</h1>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
             <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">
-              {meta.icon} {meta.label}
+              <Sym e={meta.icon} /> {meta.label}
             </span>
             <span className="text-muted-foreground">
               {steps.length} Schritte · ca. {total} min
@@ -176,7 +177,7 @@ function LibraryDetail() {
               <span className="w-5 pt-0.5 text-right font-mono text-xs text-muted-foreground">
                 {i + 1}.
               </span>
-              <span className="pt-0.5 text-lg">{s.emoji}</span>
+              <span className="pt-0.5 text-lg"><Sym e={s.emoji} /></span>
               <span className="flex-1 text-foreground">
                 {s.text}
                 {s.hint && (

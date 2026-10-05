@@ -7,6 +7,7 @@ import { listCompletions, type Completion } from "@/lib/completions.functions";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { getWorkflow } from "@/lib/workflows";
 import { useAuth } from "@/hooks/use-auth";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/statistiken")({
   component: Statistiken,
@@ -154,7 +155,7 @@ function Statistiken() {
                 key={r.key}
                 className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
               >
-                <span className="text-xl">{r.icon}</span>
+                <span className="text-xl"><Sym e={r.icon} /></span>
                 <div className="flex-1 text-sm font-medium text-foreground">{r.name}</div>
                 <div className="text-sm font-mono tabular-nums text-muted-foreground">
                   {r.count}×

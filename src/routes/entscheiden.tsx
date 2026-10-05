@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ChevronRight, Clock } from "lucide-react";
 import { decisionHelpers, type DecisionLog } from "@/lib/decisions";
 import { KEYS, lsGet } from "@/lib/storage";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/entscheiden")({
   component: EntscheidenIndex,
@@ -38,7 +39,7 @@ function EntscheidenIndex() {
               className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-4 shadow-sm transition active:scale-[0.99]"
             >
               <div className="grid h-12 w-12 place-items-center rounded-[var(--radius-md)] bg-accent text-2xl">
-                {h.icon}
+                <Sym e={h.icon} />
               </div>
               <div className="flex-1">
                 <div className="font-medium text-foreground">{h.name}</div>

@@ -19,6 +19,7 @@ import { dayBounds, fmtTime, useScheduleViews, weekBounds } from "@/lib/schedule
 import { useAuth } from "@/hooks/use-auth";
 import { listRecurrences, deleteRecurrence } from "@/lib/recurrence.functions";
 import { formatRecurrenceSummary } from "@/lib/recurrence";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/routinen")({
   component: Routinen,
@@ -171,7 +172,7 @@ function RubrikListe({ cat, items }: { cat: keyof typeof categoryMeta; items: Me
   return (
     <section>
       <h2 className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        <span className="text-base">{meta.icon}</span>
+        <span className="text-base"><Sym e={meta.icon} /></span>
         {meta.label}
         <span className="text-[10px] text-muted-foreground/70">({items.length})</span>
       </h2>
@@ -183,7 +184,7 @@ function RubrikListe({ cat, items }: { cat: keyof typeof categoryMeta; items: Me
               params={{ workflowId: w.id }}
               className="flex items-center gap-3 rounded-[var(--radius-md)] px-2 py-2 transition active:scale-[0.99]"
             >
-              <span className="text-xl">{w.icon}</span>
+              <span className="text-xl"><Sym e={w.icon} /></span>
               <span className="flex-1 text-sm font-medium text-foreground">{w.name}</span>
               {w.isUser && (
                 <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -276,7 +277,7 @@ function LibraryList() {
         return (
           <section key={cat}>
             <h2 className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <span className="text-base">{meta.icon}</span>
+              <span className="text-base"><Sym e={meta.icon} /></span>
               {meta.label}
               <span className="text-[10px] text-muted-foreground/70">({items.length})</span>
             </h2>
@@ -295,7 +296,7 @@ function LibraryList() {
                       params={{ slug: r.slug }}
                       className="flex h-full items-start gap-3 rounded-[var(--radius-lg)] bg-card p-3 shadow-sm transition active:scale-[0.99]"
                     >
-                      <span className="text-3xl">{r.icon}</span>
+                      <span className="text-3xl"><Sym e={r.icon} /></span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-foreground">{r.name}</div>
                         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
@@ -405,7 +406,7 @@ function CalendarView() {
                 <div className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
                   {fmtTime(s.scheduled_at)}
                 </div>
-                <span className="text-xl">{s.icon}</span>
+                <span className="text-xl"><Sym e={s.icon} /></span>
                 <button
                   onClick={() =>
                     navigate({
@@ -469,7 +470,7 @@ function CalendarView() {
                     <span className="w-10 font-mono text-xs tabular-nums text-muted-foreground">
                       {fmtTime(s.scheduled_at)}
                     </span>
-                    <span>{s.icon}</span>
+                    <span><Sym e={s.icon} /></span>
                     <button
                       onClick={() =>
                         navigate({

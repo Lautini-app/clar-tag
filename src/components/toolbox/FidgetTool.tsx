@@ -4,6 +4,7 @@ import { randomExercise, type FidgetExercise } from "@/lib/fidget";
 import { rewardAdd } from "@/lib/rewards";
 import { sfx } from "@/lib/audio";
 import { RingViz } from "./RingViz";
+import { Sym } from "@/components/Sym";
 
 export function FidgetTool({ onClose }: { onClose: () => void }) {
   const [exercise, setExercise] = useState<FidgetExercise>(() => randomExercise());
@@ -43,7 +44,7 @@ export function FidgetTool({ onClose }: { onClose: () => void }) {
   if (phase === "done") {
     return (
       <div className="flex flex-col items-center gap-4 py-2 text-center">
-        <div className="text-5xl">💪</div>
+        <div className="text-5xl"><Sym e="💪" /></div>
         <p className="text-sm font-medium text-foreground">Geschafft! Kurz bewegt, gut gemacht.</p>
         <div className="flex w-full gap-2">
           <button type="button" onClick={reroll} className="flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground">
@@ -62,7 +63,7 @@ export function FidgetTool({ onClose }: { onClose: () => void }) {
     return (
       <div className="flex flex-col items-center gap-4">
         <div className="text-center">
-          <span className="text-4xl">{exercise.emoji}</span>
+          <span className="text-4xl"><Sym e={exercise.emoji} /></span>
           <h3 className="mt-2 text-base font-semibold text-foreground">{exercise.name}</h3>
         </div>
 
@@ -83,7 +84,7 @@ export function FidgetTool({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4 py-2">
       <div className="text-center">
-        <span className="text-5xl">{exercise.emoji}</span>
+        <span className="text-5xl"><Sym e={exercise.emoji} /></span>
         <h3 className="mt-3 text-lg font-semibold text-foreground">{exercise.name}</h3>
         <p className="mt-1 text-xs text-muted-foreground">{exercise.duration} Sekunden</p>
       </div>

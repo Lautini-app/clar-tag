@@ -15,6 +15,7 @@ import { getWorkflow } from "@/lib/workflows";
 import { listUserWorkflows } from "@/lib/user-workflows.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { extendRecurrenceSchedules } from "@/lib/recurrence.functions";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/")({
   component: Today,
@@ -66,7 +67,7 @@ function Today() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10 text-center">
         <div>
-          <div className="clartag-big-emoji">{activeMember?.emoji ?? "🌅"}</div>
+          <div className="clartag-big-emoji"><Sym e={activeMember?.emoji ?? "🌅"} /></div>
           <h1 className="mt-4 text-2xl font-semibold text-foreground">
             Hallo {personName}.
           </h1>
@@ -78,7 +79,7 @@ function Today() {
             }
             className="clartag-big-button"
           >
-            <span className="text-3xl">{next.icon}</span>
+            <span className="text-3xl"><Sym e={next.icon} /></span>
             <span>{next.name} starten</span>
           </button>
         ) : (
@@ -138,7 +139,7 @@ function Today() {
                 <div className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
                   {fmtTime(s.scheduled_at)}
                 </div>
-                <span className="text-xl">{s.icon}</span>
+                <span className="text-xl"><Sym e={s.icon} /></span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{s.name}</div>
                   {s.status === "done" && (
@@ -250,7 +251,7 @@ function NextRoutineCard({ next, onStart }: { next: ScheduleView; onStart: () =>
       onClick={onStart}
       className="flex w-full items-center gap-4 rounded-[var(--radius-lg)] bg-card p-5 text-left shadow-sm transition active:scale-[0.99]"
     >
-      <span className="text-3xl">{next.icon}</span>
+      <span className="text-3xl"><Sym e={next.icon} /></span>
       <div className="flex-1">
         <div className="text-xs uppercase tracking-wide text-muted-foreground">Als nächstes</div>
         <div className="text-base font-medium text-foreground">{next.name}</div>

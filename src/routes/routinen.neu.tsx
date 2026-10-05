@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, Compass, Layers, PencilLine, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, Compass, Layers, Lock, PencilLine, Sparkles } from "lucide-react";
 import { WorkflowEditor } from "@/components/WorkflowEditor";
 import { GefuehrteRoutine } from "@/components/GefuehrteRoutine";
 import type { Vorschlag } from "@/lib/gefuehrte-routine";
@@ -13,6 +13,7 @@ import {
   type Grade,
   type Workflow,
 } from "@/lib/workflows";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/routinen/neu")({
   validateSearch: (search): { basis?: string; grad?: Grade } => ({
@@ -57,7 +58,7 @@ function NeueRoutine() {
           <ArrowLeft className="h-4 w-4" /> Routinen
         </button>
         <div className="rounded-[var(--radius-lg)] bg-card p-6 text-center">
-          <div className="text-3xl">🔒</div>
+          <Lock className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
           <h1 className="mt-3 text-lg font-medium text-foreground">Nur Admin</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {activeMember?.name} kann momentan keine eigenen Routinen anlegen. Frag Admin, oder
@@ -259,7 +260,7 @@ function LibraryPicker({
         return (
           <section key={cat} className="mb-5">
             <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {categoryMeta[cat].icon} {categoryMeta[cat].label}
+              <Sym e={categoryMeta[cat].icon} /> {categoryMeta[cat].label}
             </h2>
             <ul className="grid gap-1">
               {list.map((w) => (
@@ -268,7 +269,7 @@ function LibraryPicker({
                     onClick={() => onPick(w)}
                     className="flex w-full items-center gap-3 rounded-[var(--radius-md)] bg-card p-3 text-left transition active:scale-[0.99]"
                   >
-                    <span className="text-xl">{w.icon}</span>
+                    <span className="text-xl"><Sym e={w.icon} /></span>
                     <span className="flex-1 text-sm font-medium text-foreground">{w.name}</span>
                     <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                       {w.steps.mittel.length} Schritte

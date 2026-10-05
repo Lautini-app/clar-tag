@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { rewardGet, rewardSubscribe, type RewardKind } from "@/lib/rewards";
+import { Sym } from "@/components/Sym";
 
 const MILESTONES = [5, 10, 20, 50];
 const MILESTONE_EMOJI = ["⭐", "🌟", "🏆", "💎"];
@@ -39,7 +40,7 @@ export function RewardTool() {
         </div>
         {milestone && (
           <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
-            <span className="text-lg">{milestone.emoji}</span>
+            <span className="text-lg"><Sym e={milestone.emoji} /></span>
             <span className="text-xs font-medium text-primary">{milestone.count}er Meilenstein!</span>
           </div>
         )}
@@ -57,7 +58,7 @@ export function RewardTool() {
         {(Object.keys(LABELS) as RewardKind[]).map((kind) => (
           <div key={kind} className="rounded-[var(--radius-lg)] border border-border bg-background p-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">{LABELS[kind].emoji}</span>
+              <span className="text-lg"><Sym e={LABELS[kind].emoji} /></span>
               <span className="text-xl font-bold tabular-nums text-foreground">{rewards[kind]}</span>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">{LABELS[kind].label}</p>

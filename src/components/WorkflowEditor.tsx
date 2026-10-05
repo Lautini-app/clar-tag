@@ -10,6 +10,7 @@ import {
 } from "@/lib/user-workflows.functions";
 import { categoryMeta } from "@/lib/workflows";
 import { stepLibrary, stepGroupLabels, type StepCategory } from "@/lib/step-library";
+import { Sym } from "@/components/Sym";
 
 const ROUTINE_EMOJIS = [
   "🪥", "🚿", "🍳", "☕️", "📚", "🎒", "🏃‍♂️", "😴",
@@ -179,7 +180,7 @@ export function WorkflowEditor({
                       : "border-border bg-card text-foreground"
                   }`}
                 >
-                  <span className="mr-1">{categoryMeta[c].icon}</span>
+                  <span className="mr-1"><Sym e={categoryMeta[c].icon} /></span>
                   {categoryMeta[c].label}
                 </button>
               );
@@ -275,7 +276,7 @@ export function WorkflowEditor({
                     : "bg-card text-muted-foreground border border-border"
                 }`}
               >
-                {stepGroupLabels[g].icon} {stepGroupLabels[g].label}
+                <Sym e={stepGroupLabels[g].icon} /> {stepGroupLabels[g].label}
               </button>
             ))}
           </div>
@@ -289,7 +290,7 @@ export function WorkflowEditor({
                 }
                 className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:border-primary"
               >
-                <span>{s.emoji}</span>
+                <span><Sym e={s.emoji} /></span>
                 <span>{s.text}</span>
                 <Plus className="h-3 w-3 text-muted-foreground" />
               </button>
@@ -363,7 +364,7 @@ function EmojiButton({ value, onChange }: { value: string; onChange: (v: string)
         onClick={() => setOpen((o) => !o)}
         className="w-12 rounded-[var(--radius-sm)] border border-border bg-background px-2 py-2 text-center text-xl outline-none hover:border-primary"
       >
-        {value || "✅"}
+        <Sym e={value || "✅"} />
       </button>
       {open && (
         <div className="absolute left-0 top-full z-50 mt-1 grid w-[13rem] grid-cols-6 gap-1 rounded-[var(--radius-md)] border border-border bg-card p-2 shadow-lg">
@@ -376,7 +377,7 @@ function EmojiButton({ value, onChange }: { value: string; onChange: (v: string)
                 e === value ? "bg-primary-soft ring-1 ring-primary" : ""
               }`}
             >
-              {e}
+              <Sym e={e} />
             </button>
           ))}
         </div>

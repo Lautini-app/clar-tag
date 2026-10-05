@@ -13,6 +13,7 @@ import {
   type PomodoroPreset,
 } from "@/lib/pomodoro";
 import { RingViz } from "./RingViz";
+import { Sym } from "@/components/Sym";
 
 export function usePom(): PomState {
   return useSyncExternalStore(pomSubscribe, pomGet, pomGet);
@@ -142,7 +143,7 @@ function ActiveView({ pom, onClose }: { pom: PomState; onClose: () => void }) {
 
       {pom.phase === "long" && done && (
         <div className="animate-in fade-in zoom-in text-center">
-          <div className="text-4xl">🎉</div>
+          <div className="text-4xl"><Sym e="🎉" /></div>
           <p className="mt-1 text-sm font-medium text-foreground">4 Runden geschafft!</p>
         </div>
       )}

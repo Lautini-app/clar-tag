@@ -2,6 +2,7 @@ import { useFamily } from "@/hooks/use-family";
 import { useMemberStatus } from "@/hooks/use-member-status";
 import { memberStage, type Stage } from "@/lib/storage";
 import type { MemberStatus } from "@/lib/member-status";
+import { Sym } from "@/components/Sym";
 
 /**
  * Admin-Übersicht auf Heute-Screen.
@@ -29,7 +30,7 @@ export function AdminTodayOverview() {
               key={m.id}
               className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-card p-3"
             >
-              <span className="text-2xl">{m.emoji}</span>
+              <span className="text-2xl"><Sym e={m.emoji} /></span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-foreground truncate">

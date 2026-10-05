@@ -12,6 +12,7 @@ import { recordCompletion } from "@/lib/completions.functions";
 import { markTodayScheduleDone } from "@/lib/schedules.functions";
 import { useFamily } from "@/hooks/use-family";
 import { setStatus, clearStatus } from "@/lib/member-status";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/run/$workflowId")({
   component: Runner,
@@ -134,7 +135,7 @@ function Runner() {
           <ChevronLeft className="h-4 w-4" /> Heute
         </Link>
         <div className="mt-8 text-center">
-          <div className="text-5xl">{workflow.icon}</div>
+          <div className="text-5xl"><Sym e={workflow.icon} /></div>
           <h1 className="mt-4 text-2xl font-semibold text-foreground">{workflow.name}</h1>
         </div>
 
@@ -185,7 +186,7 @@ function Runner() {
     return (
       <div className="grid min-h-screen place-items-center px-6 text-center">
         <div>
-          <div className="text-6xl">🎉</div>
+          <div className="text-6xl"><Sym e="🎉" /></div>
           <h1 className="mt-4 text-3xl font-semibold text-foreground">Geschafft!</h1>
           <p className="mt-2 text-sm text-muted-foreground">{workflow.name}</p>
           <div className="mt-8 flex flex-col gap-2">
@@ -256,7 +257,7 @@ function Runner() {
       </div>
 
       <div className="mt-10 flex flex-1 flex-col items-center justify-center text-center">
-        <div className="text-7xl">{step.emoji}</div>
+        <div className="text-7xl"><Sym e={step.emoji} /></div>
         <h1 className="mt-6 text-3xl font-semibold leading-tight text-foreground">
           {step.text}
         </h1>

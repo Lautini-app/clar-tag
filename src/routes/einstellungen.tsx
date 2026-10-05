@@ -11,6 +11,7 @@ import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
 import { EmailConsentModal } from "@/components/EmailConsentModal";
 import { getEmailConsent, type ConsentLevel } from "@/lib/email-consent";
 import { getOrCreateCalendarToken, resetCalendarToken } from "@/lib/calendar-token.functions";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/einstellungen")({
   component: Einstellungen,
@@ -108,7 +109,7 @@ function Einstellungen() {
                       onClick={() => openEdit(m)}
                       className="flex w-full items-center gap-3 rounded-[var(--radius-md)] border border-border bg-card px-3 py-2 text-left"
                     >
-                      <span className="text-xl">{m.emoji}</span>
+                      <span className="text-xl"><Sym e={m.emoji} /></span>
                       <span className="flex-1">
                         <span className="block text-sm text-foreground">{m.name}</span>
                         <span className="block text-[11px] uppercase tracking-wide text-muted-foreground">

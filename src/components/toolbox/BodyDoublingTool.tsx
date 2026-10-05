@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Pause, Play, CheckCircle } from "lucide-react";
 import { bdGet, bdSubscribe, bdStart, bdToggle, bdConfirmCheckin, bdDismissCheckin, bdFinish, type BodyDoublingState } from "@/lib/body-doubling";
 import { RingViz } from "./RingViz";
+import { Sym } from "@/components/Sym";
 
 export function useBd(): BodyDoublingState {
   return useSyncExternalStore(bdSubscribe, bdGet, bdGet);
@@ -62,7 +63,7 @@ function ActiveView({ bd, onClose }: { bd: BodyDoublingState; onClose: () => voi
   if (summary) {
     return (
       <div className="flex flex-col items-center gap-4 py-2 text-center">
-        <div className="text-5xl">🏅</div>
+        <div className="text-5xl"><Sym e="🏅" /></div>
         <h3 className="text-lg font-semibold text-foreground">Gut gemacht!</h3>
         <p className="text-sm text-muted-foreground">
           {summary.minutes} Minuten fokussiert gearbeitet
@@ -82,7 +83,7 @@ function ActiveView({ bd, onClose }: { bd: BodyDoublingState; onClose: () => voi
   if (bd.checkinDue) {
     return (
       <div className="flex flex-col items-center gap-4 py-2 text-center">
-        <div className="text-5xl">👋</div>
+        <div className="text-5xl"><Sym e="👋" /></div>
         <h3 className="text-lg font-semibold text-foreground">Noch dabei?</h3>
         <p className="text-sm text-muted-foreground">{bd.goal}</p>
         <p className="font-mono text-sm tabular-nums text-muted-foreground">{fmtElapsed(bd.elapsed)}</p>
@@ -92,7 +93,7 @@ function ActiveView({ bd, onClose }: { bd: BodyDoublingState; onClose: () => voi
             onClick={bdConfirmCheckin}
             className="flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
           >
-            <CheckCircle className="h-4 w-4" /> Ja, dabei! 👍
+            <CheckCircle className="h-4 w-4" /> Ja, dabei! <Sym e="👍" />
           </button>
           <button
             type="button"

@@ -1,5 +1,6 @@
 import { useFamily } from "@/hooks/use-family";
 import { useSettings } from "@/hooks/use-settings";
+import { Sym } from "@/components/Sym";
 
 /**
  * Horizontal chip row to switch the active person.
@@ -58,7 +59,7 @@ function Chip({
           : "border-border bg-card text-foreground"
       }`}
     >
-      <span className="text-sm leading-none">{emoji}</span>
+      <span className="text-sm leading-none"><Sym e={emoji} /></span>
       <span className={active ? "font-medium" : ""}>{label}</span>
     </button>
   );

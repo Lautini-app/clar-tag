@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Pause, Play } from "lucide-react";
 import { transGet, transSubscribe, transStart, transToggle, transReset, type TransitionState } from "@/lib/transition-timer";
 import { RingViz } from "./RingViz";
+import { Sym } from "@/components/Sym";
 
 export function useTrans(): TransitionState {
   return useSyncExternalStore(transSubscribe, transGet, transGet);
@@ -98,7 +99,7 @@ function ActiveView({ trans, onClose }: { trans: TransitionState; onClose: () =>
       <RingViz pct={pct} color={color} size={160} onClick={() => !done && transToggle()} label={trans.running ? "Pause" : "Fortsetzen"}>
         <span className="font-mono text-3xl font-semibold tabular-nums text-foreground">{fmt(trans.totalLeft)}</span>
         {!done && (trans.running ? <Pause className="mt-1 h-5 w-5 text-muted-foreground" /> : <Play className="mt-1 h-5 w-5 text-muted-foreground" />)}
-        {done && <span className="mt-1 text-2xl">✅</span>}
+        {done && <span className="mt-1 text-2xl"><Sym e="✅" /></span>}
       </RingViz>
 
       {upcomingNudges.length > 0 && (

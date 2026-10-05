@@ -19,6 +19,7 @@ import {
   type RoutineExport,
 } from "@/lib/routine-export";
 import { importRoutineJson } from "@/lib/routine-import.functions";
+import { Sym } from "@/components/Sym";
 
 type Preview = {
   export: RoutineExport;
@@ -108,7 +109,7 @@ export function ImportRoutineButton() {
           <div className="space-y-3">
             <div className="rounded-[var(--radius-lg)] bg-card p-3">
               <div className="flex items-start gap-3">
-                <span className="text-3xl">{preview.export.workflow.icon}</span>
+                <span className="text-3xl"><Sym e={preview.export.workflow.icon} /></span>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-foreground">
                     {preview.export.workflow.name}

@@ -7,6 +7,7 @@ import { useResolvedWorkflow } from "@/lib/workflow-resolver";
 import { Button } from "@/components/ui/button";
 import { SchedulePlanner } from "@/components/SchedulePlanner";
 import { buildExport, downloadRoutineExport } from "@/lib/routine-export";
+import { Sym } from "@/components/Sym";
 
 export const Route = createFileRoute("/routinen/$workflowId")({
   component: Detail,
@@ -68,7 +69,7 @@ function Detail() {
 
       <header className="mb-6 flex items-start gap-3">
         <div className="grid h-14 w-14 place-items-center rounded-[var(--radius-lg)] bg-accent text-3xl">
-          {w.icon}
+          <Sym e={w.icon} />
         </div>
         <div className="flex-1">
           <h1 className="text-2xl font-semibold text-foreground">{w.name}</h1>
@@ -133,7 +134,7 @@ function Detail() {
               <span className="w-5 pt-0.5 text-right font-mono text-xs text-muted-foreground">
                 {i + 1}.
               </span>
-              <span className="pt-0.5 text-lg">{s.emoji}</span>
+              <span className="pt-0.5 text-lg"><Sym e={s.emoji} /></span>
               <span className="flex-1 text-foreground">
                 {s.text}
                 {s.hint && (
