@@ -80,6 +80,12 @@ function Login() {
         </button>
       </form>
 
+      <p className="mt-4 text-center text-sm text-muted-foreground">
+        <a href="https://home.lautini.ch/#anmelden" className="font-medium text-primary underline-offset-4 hover:underline">Passwort vergessen?</a>
+        {" · "}
+        <a href="https://home.lautini.ch/" className="font-medium text-primary underline-offset-4 hover:underline">Noch kein Konto?</a>
+      </p>
+
       <div className="mt-8 border-t border-border pt-6 text-center">
         <Link
           to="/verbinden"
