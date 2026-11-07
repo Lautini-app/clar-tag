@@ -207,15 +207,13 @@ function Einstellungen() {
         aria-label="Rechtliches"
         className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground"
       >
-        <a href="https://blog.lautini.ch/datenschutz" target="_blank" rel="noopener" className="hover:text-foreground">Datenschutz</a>
+        <a href="https://clar-adhs.ch/datenschutz" target="_blank" rel="noopener" className="hover:text-foreground">Datenschutz</a>
         <span aria-hidden>·</span>
-        <a href="https://blog.lautini.ch/datenschutz-clar-log" target="_blank" rel="noopener" className="hover:text-foreground">Datenschutz clar·log</a>
+        <a href="https://clar-adhs.ch/agb" target="_blank" rel="noopener" className="hover:text-foreground">AGB</a>
         <span aria-hidden>·</span>
-        <a href="https://blog.lautini.ch/agb-clar-log" target="_blank" rel="noopener" className="hover:text-foreground">AGB clar·log</a>
+        <a href="https://clar-adhs.ch/datenschutz#cookies-und-tracking" target="_blank" rel="noopener" className="hover:text-foreground">Cookie-Richtlinie</a>
         <span aria-hidden>·</span>
-        <a href="https://blog.lautini.ch/cookie" target="_blank" rel="noopener" className="hover:text-foreground">Cookie-Richtlinie</a>
-        <span aria-hidden>·</span>
-        <a href="https://blog.lautini.ch/impressum" target="_blank" rel="noopener" className="hover:text-foreground">Impressum</a>
+        <a href="https://clar-adhs.ch/impressum" target="_blank" rel="noopener" className="hover:text-foreground">Impressum</a>
       </nav>
     </div>
   );
