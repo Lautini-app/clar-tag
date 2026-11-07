@@ -36,7 +36,7 @@ const ABSCHNITTE: { titel: string; text: string }[] = [
   },
   {
     titel: "Werkzeuge",
-    text: "Der runde Knopf öffnet die Werkzeuge: Pomodoro, Body Doubling, Übergang, Fidget-Pause und Belohnungen.",
+    text: "Der runde Knopf öffnet die Werkzeuge: Pomodoro (konzentriert arbeiten in kurzen Runden mit Pausen), Body Doubling (arbeiten, als wäre jemand dabei), Übergang (Hilfe beim Wechsel zur nächsten Sache), Fidget-Pause (kurz etwas für die Hände) und Belohnungen.",
   },
   {
     titel: "Familie",
@@ -44,7 +44,11 @@ const ABSCHNITTE: { titel: string; text: string }[] = [
   },
   {
     titel: "Kalender",
-    text: "In den Einstellungen findest du die Adresse für das Kalender-Abo. Damit erscheinen deine eingeplanten Routinen in Apple Kalender oder Google Calendar.",
+    text: "In den Einstellungen findest du die Adresse für das Kalender-Abo. Damit erscheinen deine eingeplanten Routinen in Apple Kalender oder Google Kalender.",
+  },
+  {
+    titel: "Konto, Abo und Daten",
+    text: "Bis 31. Januar 2027 sind alle clar-Apps kostenlos. Danach wählst du auf home.lautini.ch ein Abo für 1, 2 oder alle 4 Apps, jeweils für die ganze Familie (bis 5 Personen); auf dem iPhone läuft das Abo über Apple. Deine Daten liegen auf Servern in Frankfurt und unterstehen dem Schweizer Datenschutzrecht. Löschen kannst du sie in den Einstellungen unter «Gefahrenzone» → «Alle meine Daten löschen»; dein clar-Konto und die anderen Apps bleiben dabei bestehen. Fragen? Schreib an info@lautini.ch.",
   },
 ];
 
