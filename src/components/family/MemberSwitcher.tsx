@@ -16,8 +16,8 @@ export function MemberSwitcher() {
   if (members.length === 0) return null;
 
   return (
-    <div className="-mx-5 mb-4 overflow-x-auto px-5">
-      <div className="flex items-center gap-2">
+    <div className="mb-4">
+      <div className="flex flex-wrap items-center gap-2">
         <Chip
           active={activeId === null}
           onClick={() => setActive(null)}

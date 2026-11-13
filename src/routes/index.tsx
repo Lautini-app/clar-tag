@@ -136,7 +136,7 @@ function Today() {
                   s.status !== "planned" ? "opacity-50" : ""
                 }`}
               >
-                <div className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
+                <div className="w-12 shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
                   {fmtTime(s.scheduled_at)}
                 </div>
                 <span className="text-xl"><Sym e={s.icon} /></span>
@@ -156,7 +156,7 @@ function Today() {
                         await skipFn({ data: { id: s.id, status: "skipped" } });
                         qc.invalidateQueries({ queryKey: ["schedules"] });
                       }}
-                      className="grid h-8 w-8 place-items-center rounded-full border border-border text-muted-foreground"
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border text-muted-foreground"
                       aria-label="Überspringen"
                       title="Überspringen"
                     >
@@ -169,7 +169,7 @@ function Today() {
                           params: { workflowId: s.ref },
                         })
                       }
-                      className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
                       aria-label="Starten"
                     >
                       <Play className="h-4 w-4" />
@@ -257,7 +257,7 @@ function NextRoutineCard({ next, onStart }: { next: ScheduleView; onStart: () =>
         <div className="text-base font-medium text-foreground">{next.name}</div>
         <div className="text-xs text-muted-foreground">{inLabel}</div>
       </div>
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
         <Play className="h-4 w-4" />
       </div>
     </button>
