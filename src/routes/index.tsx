@@ -128,7 +128,7 @@ function Today() {
               <Calendar className="inline h-3 w-3" /> Kalender
             </Link>
           </div>
-          <ul className="grid gap-2">
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {views.map((s) => (
               <li
                 key={s.id}
